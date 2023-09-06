@@ -1,24 +1,21 @@
 package com.example.finalproject_phase2.service.impl;
 
 import com.example.finalproject_phase2.dto.customerDto.CustomerResult;
+import com.example.finalproject_phase2.dto.customerDto.CustomerSearchDto;
 import com.example.finalproject_phase2.entity.EmailRequest;
 import com.example.finalproject_phase2.securityConfig.AuthenticationResponse;
 import com.example.finalproject_phase2.securityConfig.CustomUserDetailsService;
 import com.example.finalproject_phase2.securityConfig.JwtService;
 import com.example.finalproject_phase2.custom_exception.CustomException;
-import com.example.finalproject_phase2.custom_exception.CustomNoResultException;
 import com.example.finalproject_phase2.dto.customerDto.CustomerLoginDto;
-import com.example.finalproject_phase2.dto.customerDto.CustomerDto;
 import com.example.finalproject_phase2.entity.Customer;
 import com.example.finalproject_phase2.repository.CustomerRepository;
 import com.example.finalproject_phase2.service.CustomerService;
+import com.example.finalproject_phase2.service.OrdersService;
 import com.example.finalproject_phase2.service.WalletService;
 import com.example.finalproject_phase2.mapper.CustomerMapper;
 import com.example.finalproject_phase2.service.email.MailService;
 import com.example.finalproject_phase2.util.CheckValidation;
-import com.example.finalproject_phase2.util.hash_password.EncryptPassword;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -49,7 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
     CheckValidation checkValidation = new CheckValidation();
 
     @Autowired
-    public CustomerServiceImpl(CustomerRepository customerRepository, WalletService walletService, CustomerMapper customerMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, CustomUserDetailsService customUserDetailsService, MailService mailService) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, WalletService walletService, CustomerMapper customerMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, CustomUserDetailsService customUserDetailsService, MailService mailService ) {
         this.customerRepository = customerRepository;
         this.walletService = walletService;
         this.customerMapper = customerMapper;
@@ -59,6 +56,7 @@ public class CustomerServiceImpl implements CustomerService {
         this.jwtService = jwtService;
         this.customUserDetailsService = customUserDetailsService;
         this.mailService = mailService;
+
     }
     public AuthenticationResponse register(Customer customer){
         EmailRequest emailRequest =new EmailRequest();
@@ -108,12 +106,14 @@ public class CustomerServiceImpl implements CustomerService {
         return (customer, cq, cb) -> cb.like(customer.get("nationalId"), "%" + nationalId + "%");
     }
     public  Specification<Customer> hasCustomerSubmitBeforeThisTime(LocalTime registerTime) {
-        return (customer, cq, cb) -> cb.like(customer.get("registerTime"),"%"+registerTime+"%");
+       // return (customer, cq, cb) -> cb.like(customer.get("registerTime"),"%"+registerTime+"%");
+        return (customer, cq, cb) ->
+                cb.lessThanOrEqualTo(customer.get("registerTime"), registerTime);
     }
 
     @Override
-    public List<CustomerResult> searchCustomer(CustomerDto customerDto) {
-        Customer searchCustomer = customerMapper.customerDtoToCustomer(customerDto);
+    public List<CustomerResult> searchCustomer(CustomerSearchDto customerSearchDto) {
+        Customer searchCustomer = customerMapper.customerSearchDtoToCustomer(customerSearchDto);
         List<CustomerResult> customerList=new ArrayList<>();
         customerRepository.findAll(where(hasCustomerWithThisEmail(searchCustomer.getEmail())).
                 and(hasCustomerWithThisFirstName(searchCustomer.getFirstName())).

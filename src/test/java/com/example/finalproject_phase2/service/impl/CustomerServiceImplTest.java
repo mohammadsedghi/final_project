@@ -1,10 +1,7 @@
 package com.example.finalproject_phase2.service.impl;
 
 
-import com.example.finalproject_phase2.dto.customerDto.CustomerChangePasswordDto;
-import com.example.finalproject_phase2.dto.customerDto.CustomerDto;
-import com.example.finalproject_phase2.dto.customerDto.CustomerLoginDto;
-import com.example.finalproject_phase2.dto.customerDto.CustomerResult;
+import com.example.finalproject_phase2.dto.customerDto.*;
 import com.example.finalproject_phase2.service.CustomerService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +42,7 @@ class CustomerServiceImplTest {
     @Test
     @Order(2)
     void searchCustomer(){
-        CustomerDto customerDto=new CustomerDto();
+        CustomerSearchDto customerDto=new CustomerSearchDto();
         customerDto.setEmail("mahan@gmail.com");
         customerDto.setFirstName("reza");
         customerDto.setLastName("akbar");

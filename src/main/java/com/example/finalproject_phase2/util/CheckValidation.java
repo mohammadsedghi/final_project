@@ -39,6 +39,7 @@ public class CheckValidation {
                     } catch (CustomException e) {
                         System.out.println(e.getMessage());
                         log.error(violation.getMessage());
+
                     }
                 }
                 factory.close();

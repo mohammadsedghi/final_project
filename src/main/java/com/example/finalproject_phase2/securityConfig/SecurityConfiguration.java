@@ -82,6 +82,7 @@ public class SecurityConfiguration {
                            .requestMatchers("api/admin/searchSpecialist").hasAuthority("ADMIN")
                            .requestMatchers("api/admin/searchCustomer").hasAuthority("ADMIN")
                            .requestMatchers("api/admin/advanceSearch").hasAuthority("ADMIN")
+                           .requestMatchers("api/admin/numberOfOrders").hasAuthority("ADMIN")
                            .requestMatchers("api/admin/confirmByAdmin").hasAuthority("ADMIN").anyRequest().authenticated();
 
                    http.authenticationProvider(authenticationFilter)

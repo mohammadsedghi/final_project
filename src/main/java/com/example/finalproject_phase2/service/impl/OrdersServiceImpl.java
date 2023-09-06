@@ -18,6 +18,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -176,7 +177,14 @@ public class OrdersServiceImpl implements OrdersService {
     public Specification<Orders> hasOrdersWithThisDuty(SubDuty subDuty) {
         return (orders, cq, cb) -> cb.equal(orders.get("subDuty"), subDuty);
     }
+    public  Specification<Orders> countOrders(String email) {
+        return(orders, cq, cb) -> cb.equal(orders.get("customer").get("email"), email);
+    }
+          @Override
+           public Long numberOfOrders(String email ){
+            return ordersRepository.count(countOrders(email));
 
+        }
     public static Specification<Orders> ordersWithSubDutyAndCustomerEmail(
             SubDuty subDuty, String email, LocalDate localDateStart, LocalDate localDateEnd, OrderStatus status) {
         return (Root<Orders> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {

@@ -17,7 +17,6 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class DutyDto  {
-
     @Length(message ="name of duty must be 100 character",max = 100)
     @NotNull(message = "name must of duty be have value")
     @Pattern(message = "name must be just letters",regexp = "^[a-zA-Z]+$")

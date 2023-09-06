@@ -2,7 +2,9 @@ package com.example.finalproject_phase2.controller;
 
 import com.example.finalproject_phase2.custom_exception.CustomNumberFormatException;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDto;
+import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.customerDto.CustomerResult;
+import com.example.finalproject_phase2.dto.customerDto.CustomerSearchDto;
 import com.example.finalproject_phase2.dto.dutyDto.DutyNameDto;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersAdvanceSearchParameter;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersResult;
@@ -21,18 +23,23 @@ import com.example.finalproject_phase2.mapper.AdminMapper;
 import com.example.finalproject_phase2.mapper.DutyMapper;
 import com.example.finalproject_phase2.mapper.SubDutyMapper;
 import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.DtoValidation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
 @RestController
 @RequestMapping("/api/admin")
+@Validated
 public class AdminController {
     private  final AdminService adminService;
     private final AdminMapper adminMapper;
@@ -120,8 +127,9 @@ public class AdminController {
         return new ResponseEntity<>(specialists, HttpStatus.ACCEPTED);
     }
     @PostMapping("/searchCustomer")
-    public ResponseEntity<List<CustomerResult>> searchCustomer(@RequestBody CustomerDto customerDto) {
-        List<CustomerResult> customers = customerService.searchCustomer(customerDto);
+    public ResponseEntity<List<CustomerResult>> searchCustomer(@RequestBody CustomerSearchDto customerSearchDto) {
+    if (customerSearchDto.getRegisterTime()==null) customerSearchDto.setRegisterTime(LocalTime.now());
+    List<CustomerResult> customers = customerService.searchCustomer(customerSearchDto);
         return new ResponseEntity<>(customers, HttpStatus.ACCEPTED);
     }
     @PostMapping("/advanceSearch")
@@ -132,6 +140,22 @@ public class AdminController {
             throw new CustomException("with this parameter not found any things");
         }else {
             return new ResponseEntity<>(ordersService.searchInDuty(ordersAdvanceSearchParameter), HttpStatus.ACCEPTED);
+        }
+    }
+   CheckValidation checkValidation=new CheckValidation();
+DtoValidation dtoValidation=new DtoValidation();
+    @PostMapping("/numberOfOrders")
+    public ResponseEntity<Long> numberOfOrders(@RequestBody CustomerDtoEmail customerDtoEmail){
+        dtoValidation.isValid(customerDtoEmail);
+        Long numberOfOrders = ordersService.numberOfOrders(customerDtoEmail.getEmail());
+        try {
+            if (numberOfOrders == 0) {
+                throw new CustomException("with this email not found any orders");
+            } else {
+                return new ResponseEntity<>(numberOfOrders, HttpStatus.ACCEPTED);
+            }
+        }catch (CustomException e){
+            throw new CustomException("with this email not found any member");
         }
     }
 }

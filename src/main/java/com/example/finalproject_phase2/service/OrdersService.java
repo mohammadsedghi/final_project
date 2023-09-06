@@ -29,5 +29,6 @@ public interface OrdersService {
     Collection<Orders> findOrdersInStatusDone(CustomerDtoEmail customerDtoEmail);
 //    List<OrdersResult> searchInDuty(String dutyName );
     List<OrdersResult> searchInDuty(OrdersAdvanceSearchParameter ordersAdvanceSearchParameter );
+    Long numberOfOrders(String email );
     Optional<Orders> findById(Long id);
 }
