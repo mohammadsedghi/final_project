@@ -1,0 +1,10 @@
+package com.example.finalproject_phase2.entity.enumeration;
+
+public enum OrderStatus {
+    ORDER_WAITING_FOR_SPECIALIST_SUGGESTION,
+    ORDER_WAITING_FOR_SPECIALIST_SELECTION,
+    ORDER_WAITING_FOR_SPECIALIST_TO_WORKPLACE,
+    ORDER_STARTED,
+    ORDER_DONE,
+    ORDER_PAID
+}
