@@ -258,6 +258,11 @@ private String token;
     public Specialist findByEmail(String email) {
         return specialistRepository.findByEmail(email).get();
     }
+    @Override
+    public Optional<Specialist> findByEmailOptional(String email) {
+        Optional<Specialist> specialist = specialistRepository.findByEmail(email);
+        return specialist;
+    }
 
     @Override
     public Integer updateSpecialistScore(SpecialistScoreDto specialistScoreDto) {

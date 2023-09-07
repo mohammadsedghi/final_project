@@ -3,6 +3,7 @@ package com.example.finalproject_phase2.service.impl;
 import com.example.finalproject_phase2.custom_exception.CustomDuplicateInfoException;
 import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
+import com.example.finalproject_phase2.dto.customerDto.CustomerResult;
 import com.example.finalproject_phase2.dto.dutyDto.DutyDto;
 import com.example.finalproject_phase2.dto.ordersDto.*;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistResult;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.jpa.domain.Specification.where;
 
@@ -76,7 +78,7 @@ public class OrdersServiceImpl implements OrdersService {
                 if (!checkValidation.isValid(submitOrderDto.getAddress())) {
                     throw new CustomException("input address for orders is invalid");
                 }
-                System.out.println(true + "2");
+
                 LocalDate date = LocalDate.of(submitOrderDto.getYear(), submitOrderDto.getMonth(), submitOrderDto.getDay());
 //                   SubDuty subDuty = subDutyMapper.subDutyDtoToSubDuty(subDutyDto);
                 System.out.println(subDuty.getId());
@@ -133,6 +135,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     }
 
+
     @Override
     public Collection<Orders> findOrdersInStatusWaitingForSpecialistSuggestion(CustomerDtoEmail customerDtoEmail) {
         return (ordersRepository.findOrdersInStatusWaitingForSpecialistSuggestion(customerDtoEmail.getEmail(),
@@ -174,9 +177,6 @@ public class OrdersServiceImpl implements OrdersService {
         return ordersRepository.findById(id);
     }
 
-    public Specification<Orders> hasOrdersWithThisDuty(SubDuty subDuty) {
-        return (orders, cq, cb) -> cb.equal(orders.get("subDuty"), subDuty);
-    }
     public  Specification<Orders> countOrders(String email) {
         return(orders, cq, cb) -> cb.equal(orders.get("customer").get("email"), email);
     }
@@ -185,10 +185,10 @@ public class OrdersServiceImpl implements OrdersService {
             return ordersRepository.count(countOrders(email));
 
         }
-    public static Specification<Orders> ordersWithSubDutyAndCustomerEmail(
+    public  Specification<Orders> advanceSearchInOrders(
             SubDuty subDuty, String email, LocalDate localDateStart, LocalDate localDateEnd, OrderStatus status) {
         return (Root<Orders> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.conjunction(); // Initialize with conjunction
+            Predicate predicate = criteriaBuilder.conjunction();
 
             if (subDuty != null) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("subDuty"), subDuty));
@@ -205,16 +205,6 @@ public class OrdersServiceImpl implements OrdersService {
             return predicate;
         };
     }
-
-    //    public static Specification<Orders> ordersWithSubDutyAndCustomerEmail(SubDuty subDuty, String email,LocalDate localDateStart,LocalDate localDateEnd,OrderStatus orderStatus) {
-//        return (Root<Orders> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
-//            Predicate subDutyPredicate = criteriaBuilder.equal(root.get("subDuty"), subDuty);
-//            Predicate emailPredicate = criteriaBuilder.equal(root.get("customer").get("email"), email);
-//            Predicate localDatePredicate = criteriaBuilder.between(root.get("DateOfWork"), localDateStart,localDateEnd);
-//            Predicate orderStatusPredicate = criteriaBuilder.equal(root.get("orderStatus"), orderStatus);
-//            return criteriaBuilder.and(subDutyPredicate, emailPredicate,localDatePredicate,orderStatusPredicate);
-//        };
-//    }
     @Override
     public List<OrdersResult> searchInDuty(OrdersAdvanceSearchParameter ordersAdvanceSearchParameter) {
         Set<DutyDto> allDuties = new HashSet<>();
@@ -241,7 +231,6 @@ public class OrdersServiceImpl implements OrdersService {
                         break;
                     }
                 }else {
-                    System.out.println("2222");
                     ordersList.addAll(findAll(subDuty,
                             ordersAdvanceSearchParameter.getEmail(),
                             ordersAdvanceSearchParameter.getDateOfWorkStart(),
@@ -255,7 +244,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     public List<OrdersResult> findAll(SubDuty subDuty, String email, LocalDate localDateStart, LocalDate localDateEnd, OrderStatus status) {
         List<OrdersResult> ordersList = new ArrayList<>();
-        ordersRepository.findAll(where(ordersWithSubDutyAndCustomerEmail(subDuty, email, localDateStart, localDateEnd, status)))
+        ordersRepository.findAll(where(advanceSearchInOrders(subDuty, email, localDateStart, localDateEnd, status)))
                 .forEach(orders -> ordersList.add(new OrdersResult(
                         orders.getSpecialist().getLastName(),
                         orders.getCustomer().getLastName()
@@ -263,6 +252,45 @@ public class OrdersServiceImpl implements OrdersService {
                         , orders.getProposedPrice())));
         return ordersList;
     }
+    public Collection<Orders> findOrdersForCustomerInStatus(CustomerDtoEmail customerDtoEmail,OrderStatus orderStatus) {
+        return (ordersRepository.findOrdersInStatusWaitingForSpecialistSuggestion(customerDtoEmail.getEmail(),
+                orderStatus));
+    }
+    public Collection<Orders> findOrdersForSpecialistInStatus(CustomerDtoEmail customerDtoEmail,OrderStatus orderStatus) {
+        return (ordersRepository.findOrdersInStatusForSpecialist(customerDtoEmail.getEmail(),
+                orderStatus));
+    }
+
+    public List<OrderStatus>toListOrdersStatus(){
+        return List.of(OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION,
+                OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION,
+                OrderStatus.ORDER_WAITING_FOR_SPECIALIST_TO_WORKPLACE,
+                OrderStatus.ORDER_STARTED,
+                OrderStatus.ORDER_PAID,
+                OrderStatus.ORDER_DONE);
+    }
+    @Override
+    public Map<OrderStatus,List<OrdersResult>> showHistoryOrders(CustomerDtoEmail customerDtoEmail){
+        Map<OrderStatus,List<OrdersResult>> orders = new HashMap<>();
+        for (OrderStatus orderStatus:toListOrdersStatus()
+             ) {
+            List<OrdersResult> ordersResults= new ArrayList<>();
+            if( customerService.findByEmail(customerDtoEmail.getEmail()).isPresent()){
+                findOrdersForCustomerInStatus(customerDtoEmail,orderStatus).forEach(
+                    orders1 -> { ordersResults.add(new OrdersResult(orders1.getSpecialist().getLastName()
+                            ,orders1.getCustomer().getLastName()+orders1.getOrderStatus().toString(),orders1.getDateOfWork(), orders1.getProposedPrice()));
+                    });
+            }else if(specialistService.findByEmailOptional(customerDtoEmail.getEmail()).isPresent()){
+                findOrdersForSpecialistInStatus(customerDtoEmail,orderStatus).forEach(
+                        orders1 -> { ordersResults.add(new OrdersResult(orders1.getSpecialist().getLastName()
+                                ,orders1.getCustomer().getLastName()+orders1.getOrderStatus().toString(),orders1.getDateOfWork(), orders1.getProposedPrice()));
+                        });
+            }else throw new CustomException("user not found");
+            orders.put(orderStatus, ordersResults);
+        }
+        return orders;
+    }
+
 }
 //    @Override
 //    public List<OrdersResult> searchInDuty(String dutyName ) {

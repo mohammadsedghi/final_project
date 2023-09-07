@@ -6,6 +6,7 @@ import com.example.finalproject_phase2.dto.specialistSuggestionDto.SpecialistSug
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.SpecialistSuggestionIdDto;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.StatusOrderSpecialistSuggestionDto;
 import com.example.finalproject_phase2.entity.*;
+import com.example.finalproject_phase2.entity.enumeration.OrderStatus;
 import com.example.finalproject_phase2.securityConfig.AuthenticationResponse;
 import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.custom_exception.CustomNoResultException;
@@ -327,6 +328,9 @@ public class CustomerController {
        return new ResponseEntity<>(walletService.ShowBalance(customer.get().getWallet()),HttpStatus.ACCEPTED);
     }
 
-
+    @PostMapping("/history/orders")
+    public ResponseEntity<Map<OrderStatus,List<OrdersResult>>> showHistoryOrders(@RequestBody  CustomerDtoEmail customerDtoEmail){
+        return new ResponseEntity<>(ordersService.showHistoryOrders(customerDtoEmail),HttpStatus.ACCEPTED);
+    }
 
   }

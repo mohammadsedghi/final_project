@@ -134,7 +134,6 @@ public class AdminController {
     }
     @PostMapping("/advanceSearch")
     public ResponseEntity<List<OrdersResult>> searchOrders(@RequestBody OrdersAdvanceSearchParameter ordersAdvanceSearchParameter ){
-//        System.out.println(ordersAdvanceSearchParameter.getDateOfWork()+"dddddddd");
         List<OrdersResult> ordersResults = ordersService.searchInDuty(ordersAdvanceSearchParameter);
         if (ordersResults.size()==0){
             throw new CustomException("with this parameter not found any things");

@@ -14,6 +14,7 @@ import com.example.finalproject_phase2.entity.enumeration.OrderStatus;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface OrdersService {
@@ -30,5 +31,6 @@ public interface OrdersService {
 //    List<OrdersResult> searchInDuty(String dutyName );
     List<OrdersResult> searchInDuty(OrdersAdvanceSearchParameter ordersAdvanceSearchParameter );
     Long numberOfOrders(String email );
+    Map<OrderStatus,List<OrdersResult>> showHistoryOrders(CustomerDtoEmail customerDtoEmail);
     Optional<Orders> findById(Long id);
 }

@@ -59,6 +59,7 @@ public class SecurityConfiguration {
                            .requestMatchers("api/customer/wallet/payWithWallet").hasAuthority("CUSTOMER")
                            .requestMatchers("api/customer/email/send").hasAuthority("CUSTOMER")
                            .requestMatchers("api/customer/wallet/ShowBalance").hasAuthority("CUSTOMER")
+                           .requestMatchers("api/customer/history/orders").hasAuthority("CUSTOMER")
 
                            .requestMatchers("api/specialist/updateScore").hasAuthority("SPECIALIST")
                            .requestMatchers("api/specialist/showImage").hasAuthority("SPECIALIST")

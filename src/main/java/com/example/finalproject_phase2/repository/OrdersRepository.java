@@ -20,15 +20,17 @@ public interface OrdersRepository extends JpaRepository<Orders,Long>,JpaSpecific
     Optional<Orders> findOrdersWithThisCustomerAndSubDuty(Customer customer, SubDuty subDuty,OrderStatus orderStatus);
     @Query("select o from Orders o where o.customer.email=:email and o.orderStatus =:orderStatus")
     Collection<Orders> findOrdersInStatusWaitingForSpecialistSuggestion(String email , OrderStatus orderStatus);
-    @Query("select o from Orders o where o.customer.email=:email and o.orderStatus =:orderStatus")
+    @Query("select o from Orders o where o.customer.email=:email or o.specialist.email=:email and o.orderStatus =:orderStatus")
     Collection<Orders> findOrdersInStatusWaitingForSpecialistSelection(String email,OrderStatus orderStatus);
-    @Query("select o from Orders o where o.customer.email=:email and o.orderStatus =:orderStatus")
+    @Query("select o from Orders o where o.customer.email=:email or o.specialist.email=:email and o.orderStatus =:orderStatus")
     Collection<Orders> findOrdersInStatusWaitingForSpecialistToWorkplace(String email ,OrderStatus orderStatus);
-    @Query("select o from Orders o where o.customer.email=:email and o.orderStatus =:orderStatus")
+    @Query("select o from Orders o where o.customer.email=:email or o.specialist.email=:email and o.orderStatus =:orderStatus")
     Collection<Orders> findOrdersInStatusStarted(String email,OrderStatus orderStatus);
-    @Query("select o from Orders o where o.customer.email=:email and o.orderStatus =:orderStatus")
+    @Query("select o from Orders o where o.customer.email=:email or o.specialist.email=:email and o.orderStatus =:orderStatus")
     Collection<Orders> findOrdersInStatusPaid(String email ,OrderStatus orderStatus);
-    @Query("select o from Orders o where o.customer.email=:email and o.orderStatus =:orderStatus")
+    @Query("select o from Orders o where o.customer.email=:email or o.specialist.email=:email and o.orderStatus =:orderStatus")
     Collection<Orders> findOrdersInStatusDone(String email,OrderStatus orderStatus);
+    @Query("select o from Orders o where o.specialist.email=:email and o.orderStatus =:orderStatus")
+    Collection<Orders> findOrdersInStatusForSpecialist(String email , OrderStatus orderStatus);
     Optional<Orders> findById(Long id);
 }

@@ -26,6 +26,7 @@ public interface SpecialistService {
     String convertImageToImageDataFile(MultipartFile file , Specialist specialist)throws CustomInputOutputException;
      void convertByteArrayToImage (ConvertImageDto convertImageDto );
      Specialist findByEmail(String email);
+    Optional<Specialist> findByEmailOptional(String email);
     Integer updateSpecialistScore(SpecialistScoreDto specialistScoreDto);
      List<SpecialistResult> searchSpecialist(SpecialistDto specialistDto);
 }
