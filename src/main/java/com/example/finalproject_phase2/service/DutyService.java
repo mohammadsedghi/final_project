@@ -11,4 +11,5 @@ public interface DutyService {
     DutyDto addDuty(DutyDto dutyDto);
     Set<DutyDto> findAllByDuties();
     DutyDto findByName(String name);
+    Duty findByNames(String name);
 }

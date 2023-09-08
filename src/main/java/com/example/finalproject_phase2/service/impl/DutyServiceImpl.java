@@ -2,6 +2,7 @@ package com.example.finalproject_phase2.service.impl;
 
 import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.dto.dutyDto.DutyDto;
+import com.example.finalproject_phase2.entity.Duty;
 import com.example.finalproject_phase2.repository.DutyRepository;
 import com.example.finalproject_phase2.service.DutyService;
 import com.example.finalproject_phase2.mapper.DutyMapper;
@@ -52,5 +53,9 @@ public class DutyServiceImpl implements DutyService {
     @Override
     public DutyDto findByName(String name) {
         return dutyMapper.dutyToDutyDto(dutyRepository.findByName(name));
+    }
+    @Override
+    public Duty findByNames(String name) {
+        return dutyRepository.findByName(name);
     }
 }

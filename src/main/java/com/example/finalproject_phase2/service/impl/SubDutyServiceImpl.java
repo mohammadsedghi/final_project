@@ -113,6 +113,14 @@ public class SubDutyServiceImpl implements SubDutyService {
         return subDutyMapper.subDutyToSubDutyDto(subDuty);
     }
     @Override
+    public SubDuty findByNames(String name) {
+        subDutyRepository.findByName(name).ifPresentOrElse(
+                subDuty1 ->{subDuty=subDuty1;}
+                ,()->{subDuty=new SubDuty();}
+        );
+        return subDuty;
+    }
+    @Override
     public SubDuty findById(Long id){
         return subDutyRepository.findById(id).get();
     }

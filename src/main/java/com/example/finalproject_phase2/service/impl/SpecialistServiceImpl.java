@@ -73,11 +73,11 @@ private String token;
     @Override
     public AuthenticationResponse register(MultipartFile file,SpecialistRegisterDto specialistRegisterDto){
         EmailRequest emailRequest =new EmailRequest();
-        Duty duty = dutyMapper.dutyDtoToDuty(dutyService.findByName(specialistRegisterDto.getDutyName()));
-        duty.setId(1l);
-        SubDuty subDuty = subDutyMapper.subDutyDtoToSubDuty(subDutyService.findByName(specialistRegisterDto.getSubDutyName()));
+        Duty duty = dutyService.findByNames(specialistRegisterDto.getDutyName());
+        //duty.setId(1l);
+        SubDuty subDuty = subDutyService.findByNames(specialistRegisterDto.getSubDutyName());
         Set<SubDuty> subDuties=new HashSet<>();
-        subDuty.setId(2l);
+       // subDuty.setId(2l);
         subDuties.add(subDuty);
         Specialist specialist=Specialist.builder().
         firstName(specialistRegisterDto.getFirstName())

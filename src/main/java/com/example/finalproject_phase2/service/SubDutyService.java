@@ -20,5 +20,6 @@ public interface SubDutyService {
     SubDutyDto editSubDutyDescription(EditSubDutyDtoDescription editSubDutyDtoDescription);
     boolean isExistSubDuty(String name);
     SubDutyDto findByName(String name);
+    SubDuty findByNames(String name);
     SubDuty findById(Long id);
 }
