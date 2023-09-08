@@ -33,6 +33,8 @@ public class SecurityConfiguration {
                            .requestMatchers("api/customer/wallet/endTime").permitAll()
                            .requestMatchers("api/customer/wallet/captcha").permitAll()
                            .requestMatchers("payment4.jpg").permitAll()
+                           .requestMatchers("error.jpg").permitAll()
+                           .requestMatchers("success.jpg").permitAll()
 //                           .requestMatchers("/**").permitAll()
 //                           .requestMatchers("api/customer/**").permitAll()
                            .requestMatchers("api/customer/activate").permitAll()

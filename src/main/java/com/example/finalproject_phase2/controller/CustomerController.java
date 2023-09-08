@@ -129,7 +129,6 @@ public class CustomerController {
     }
     @PostMapping("/submitOrders")
     public ResponseEntity<OrdersDto> submitOrders(@RequestBody  SubmitOrderDto submitOrderDto) {
-        System.out.println("2222222222");
         OrdersDto ordersDto = ordersService.submitOrder(submitOrderDto);
         if (ordersDto!=null){
             return new ResponseEntity<>(ordersDto, HttpStatus.ACCEPTED);
@@ -305,7 +304,6 @@ public class CustomerController {
     }
     @GetMapping("/activate")
     public String activateAccount(@RequestParam("token") String token,Model model) {
-        System.out.println("controller token" + token);
         String response;
         if (CheckValidation.memberTypeCustomer.getIsEnable()){
             response="you clicked before and can not permission to clicked it again";

@@ -3,9 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style th:inline="text">
+        body{
+            alignment: center;
+            justify-content: center;
+            background-repeat: no-repeat;
+            overflow: hidden;
+
+        }
+        .div{
+            height: 50%;
+            text-align: center;
+        }
+    </style>
+
 </head>
 <body>
-<h1>activation Failure</h1>
-<div id="responseDisplay" th:text="${response}" ></div>
+<div class="div"><img src="http://localhost:8080/error.jpg" width="100 px"></div>
+<div class="div"><h1>Activation Failure</h1></div>
+<div class="div" id="responseDisplay" th:text="${response}" ></div>
 </body>
 </html>

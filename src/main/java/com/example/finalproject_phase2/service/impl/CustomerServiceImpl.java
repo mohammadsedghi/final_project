@@ -73,7 +73,7 @@ public class CustomerServiceImpl implements CustomerService {
         emailRequest.setTo(customer.getEmail());
         emailRequest.setSubject("activate account");
         emailRequest.setText("Click the following link to activate your account: http://localhost:8080/api/customer/activate?token=" + jwtToken);
-        mailService.sendEmail(emailRequest.getTo(), emailRequest.getSubject(), emailRequest.getText());
+        mailService.sendEmail(emailRequest.getTo(),emailRequest.getSubject(), emailRequest.getText());
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
@@ -92,6 +92,18 @@ public class CustomerServiceImpl implements CustomerService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+    @Override
+    public boolean isAccountActivated(String token) {
+        System.out.println("this token" + this.token);
+        if (token.equals(this.token)) {
+            Optional<Customer> customer = findByEmail(CheckValidation.memberTypeCustomer.getEmail());
+            customer.get().setIsEnable(true);
+            CheckValidation.memberTypeCustomer.setIsEnable(true);
+            customerRepository.save(customer.get());
+            return true;
+        }
+        return false;
     }
 
     public Specification<Customer> hasCustomerWithThisEmail(String email) {
@@ -125,22 +137,11 @@ public class CustomerServiceImpl implements CustomerService {
                 .and(hasCustomerWithThisNationalId(searchCustomer.getNationalId()))
                 .and(hasCustomerSubmitBeforeThisTime(searchCustomer.getRegisterTime()))
         ).forEach(customer -> customerList.add(new CustomerResult(customer.getFirstName(), customer.getLastName(), customer.getEmail())));
-        ;
+
         return customerList;
     }
 
-    @Override
-    public boolean isAccountActivated(String token) {
-        System.out.println("this token" + this.token);
-        if (token.equals(this.token)) {
-            Optional<Customer> customer = findByEmail(CheckValidation.memberTypeCustomer.getEmail());
-            customer.get().setIsEnable(true);
-            CheckValidation.memberTypeCustomer.setIsEnable(true);
-            customerRepository.save(customer.get());
-            return true;
-        }
-        return false;
-    }
+
 
     @Override
     public boolean changePassword(String email, String newPassword) {
