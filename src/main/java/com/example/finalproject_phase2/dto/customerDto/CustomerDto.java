@@ -11,7 +11,6 @@ import org.hibernate.validator.constraints.Length;
 @Setter
 @Getter
 @NoArgsConstructor
-//@AllArgsConstructor()
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CustomerDto extends PersonDto {
 @Builder

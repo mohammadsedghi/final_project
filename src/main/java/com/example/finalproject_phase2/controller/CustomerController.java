@@ -20,6 +20,7 @@ import com.example.finalproject_phase2.mapper.AddressMapper;
 import com.example.finalproject_phase2.mapper.CustomerMapper;
 import com.example.finalproject_phase2.mapper.OrdersMapper;
 import com.example.finalproject_phase2.service.captcha.CaptchaService;
+import com.example.finalproject_phase2.service.email.EmailRequest;
 import com.example.finalproject_phase2.service.email.MailService;
 import com.example.finalproject_phase2.util.CheckValidation;
 import com.example.finalproject_phase2.util.CustomRegex;

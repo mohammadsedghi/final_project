@@ -13,6 +13,7 @@ import com.example.finalproject_phase2.dto.specialistDto.SpecialistResult;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDtoDescription;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyDto;
+import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
 import com.example.finalproject_phase2.securityConfig.AuthenticationResponse;
 import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.dto.adminDto.AdminDto;
@@ -34,6 +35,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +43,7 @@ import java.util.Set;
 @RequestMapping("/api/admin")
 @Validated
 public class AdminController {
-    private  final AdminService adminService;
+    private final AdminService adminService;
     private final AdminMapper adminMapper;
     private final AuthenticationProvider authenticationProvider;
     private final DutyService dutyService;
@@ -50,101 +52,126 @@ public class AdminController {
     private final SubDutyMapper subDutyMapper;
     private final SpecialistService specialistService;
     private final CustomerService customerService;
-    private final OrdersService ordersService ;
+    private final OrdersService ordersService;
+    DtoValidation dtoValidation = new DtoValidation();
 
-
-@Autowired
+    @Autowired
     public AdminController(AdminService adminService, AdminMapper adminMapper, AuthenticationProvider authenticationProvider, DutyService dutyService, DutyMapper dutyMapper, SubDutyService subDutyService, SubDutyMapper subDutyMapper, SpecialistService specialistService, CustomerService customerService, OrdersService ordersService) {
         this.adminService = adminService;
         this.adminMapper = adminMapper;
-    this.authenticationProvider = authenticationProvider;
-    this.dutyService = dutyService;
-    this.dutyMapper = dutyMapper;
-    this.subDutyService = subDutyService;
-    this.subDutyMapper = subDutyMapper;
-    this.specialistService = specialistService;
-    this.customerService = customerService;
-    this.ordersService = ordersService;
-}
+        this.authenticationProvider = authenticationProvider;
+        this.dutyService = dutyService;
+        this.dutyMapper = dutyMapper;
+        this.subDutyService = subDutyService;
+        this.subDutyMapper = subDutyMapper;
+        this.specialistService = specialistService;
+        this.customerService = customerService;
+        this.ordersService = ordersService;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody @Valid AdminDto adminDto){
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody  AdminDto adminDto) {
         System.out.println(adminMapper.adminDtoToAdmin(adminDto).getEmail());
-        return  ResponseEntity.ok(adminService.register(adminMapper.adminDtoToAdmin(adminDto)));
+        dtoValidation.isValid(adminDto);
+        return ResponseEntity.ok(adminService.register(adminMapper.adminDtoToAdmin(adminDto)));
     }
+
     @PostMapping("/authentication")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AdminLoginDto adminLoginDto
-            , @RequestParam String userType){
-        CheckValidation.userType=userType;
+            , @RequestParam String userType) {
+        CheckValidation.userType = userType;
         System.out.println(userType);
-        if (userType.equals("admin")){
-            return  ResponseEntity.ok(adminService.authenticate(adminLoginDto));
-        }else  return new ResponseEntity<>(new AuthenticationResponse(), HttpStatus.BAD_REQUEST);
+        dtoValidation.isValid(adminLoginDto);
+        if (userType.equals("admin")) {
+            return ResponseEntity.ok(adminService.authenticate(adminLoginDto));
+        } else return new ResponseEntity<>(new AuthenticationResponse(), HttpStatus.BAD_REQUEST);
     }
+
     @PostMapping("/duty/submit")
     public ResponseEntity<DutyDto> addDuty(@RequestBody DutyDto dutyDto) {
-        DutyDto dutyDtoGenerated = dutyService.addDuty(dutyDto);
-        if (dutyDtoGenerated!=null)return new ResponseEntity<>(dutyDtoGenerated, HttpStatus.ACCEPTED);
+        dtoValidation.isValid(dutyDto);
+        DutyDto dutyDtoGenerated = dutyService.addDuty(dutyMapper.dutyDtoToDuty(dutyDto));
+        if (dutyDtoGenerated != null) return new ResponseEntity<>(dutyDtoGenerated, HttpStatus.ACCEPTED);
         else throw new CustomException("duty not saved");
     }
+
     @GetMapping("/duty/findAll")
-    public Set<DutyDto> getAllDuty() {
-        return dutyService.findAllByDuties();
+    public Set<DutyNameDto> getAllDuty() {
+        Set<DutyNameDto> dutyNameDtoSet = new HashSet<>();
+        Set<DutyDto> allDuty = dutyService.findAllByDuties();
+        for (DutyDto dutyDto : allDuty
+        ) {
+            dutyNameDtoSet.add(new DutyNameDto(dutyDto.getName()));
+        }
+        return dutyNameDtoSet;
     }
+
     @PostMapping("/addSubDuty")
     public ResponseEntity<SubDutyDto> addSubDuty(@RequestBody SubDutyDto subDutyDto) {
+        dtoValidation.isValid(subDutyDto);
         SubDutyDto subDutyDtoCandidate = subDutyService.addSubDuty(subDutyDto);
-        if (subDutyDto!=null)return new ResponseEntity<>(subDutyDtoCandidate, HttpStatus.ACCEPTED);
-        else throw  new CustomException("subDuty not saved");
+      return new ResponseEntity<>(subDutyDtoCandidate, HttpStatus.ACCEPTED);
     }
-    @PostMapping("/editSubDutyPrice")
-    public ResponseEntity<SubDutyDto> editSubDutyPrice(@RequestBody EditSubDutyDto editSubDutyDto) {
-        SubDutyDto subDutyDto = subDutyService.editSubDutyPrice(editSubDutyDto);
-        if (subDutyDto!=null)return new ResponseEntity<>(subDutyDto, HttpStatus.ACCEPTED);
-        else throw  new CustomNumberFormatException("invalid price");
+
+    @PostMapping("/subDuty/editSubDutyPrice")
+    public ResponseEntity<EditSubDutyDto> editSubDutyPrice(@RequestBody EditSubDutyDto editSubDutyDto) {
+      dtoValidation.isValid(editSubDutyDto);
+        EditSubDutyDto editSubDutyDtoResult = subDutyService.editSubDutyPrice(editSubDutyDto);
+        return new ResponseEntity<>(editSubDutyDtoResult, HttpStatus.ACCEPTED);
+
     }
-    @PostMapping("/editSubDutyDescription")
-    public ResponseEntity<SubDutyDto> editSubDutyDescription(@RequestBody EditSubDutyDtoDescription editSubDutyDtoDescription) {
-        SubDutyDto subDutyDto = subDutyService.editSubDutyDescription(editSubDutyDtoDescription);
-        if (subDutyDto!=null)return new ResponseEntity<>(subDutyDto, HttpStatus.ACCEPTED);
-        else throw  new CustomNumberFormatException("invalid price");
+
+    @PostMapping("/subDuty/editSubDutyDescription")
+    public ResponseEntity<EditSubDutyDtoDescription> editSubDutyDescription(@RequestBody EditSubDutyDtoDescription editSubDutyDtoDescription) {
+        dtoValidation.isValid(editSubDutyDtoDescription);
+        EditSubDutyDtoDescription editSubDutyDtoDescriptionResult = subDutyService.editSubDutyDescription(editSubDutyDtoDescription);
+        return new ResponseEntity<>(editSubDutyDtoDescriptionResult, HttpStatus.ACCEPTED);
+
     }
-    @GetMapping("/findAllSubDuty")
-    public Set<SubDutyDto> getAllSubDuty(DutyDto dutyDto) {
-        return subDutyMapper.collectionOfSubDutyToSetOfSubDutyDto(subDutyService.showAllSubDutyOfDuty(dutyDto));
+
+    @PostMapping("/subDuty/findAll")
+    public Set<SubDutyNameDto> AllSubDuty(@RequestBody DutyNameDto dutyNameDto) {
+        dtoValidation.isValid(dutyNameDto);
+       return  subDutyService.showAllSubDutyOfDuty(dutyNameDto);
+
     }
+
     @PostMapping("/confirmByAdmin")
-    public ResponseEntity<SpecialistDto> confirmSpecialistByAdmin(@RequestBody @Valid SpecialistDto specialistDto) {
+    public ResponseEntity<SpecialistDto> confirmSpecialistByAdmin(@RequestBody SpecialistDto specialistDto) {
+        dtoValidation.isValid(specialistDto);
         SpecialistDto specialistDtoCandidate = specialistService.confirmSpecialistByAdmin(specialistDto);
-        if (specialistDtoCandidate!=null)return new ResponseEntity<>(specialistDtoCandidate, HttpStatus.ACCEPTED);
+        if (specialistDtoCandidate != null) return new ResponseEntity<>(specialistDtoCandidate, HttpStatus.ACCEPTED);
         else throw new CustomException("confirm by admin have error");
     }
+
     @PostMapping("/searchSpecialist")
     public ResponseEntity<List<SpecialistResult>> searchSpecialist(@RequestBody SpecialistDto specialistDto) {
         List<SpecialistResult> specialists = specialistService.searchSpecialist(specialistDto);
-        CheckValidation.memberTypespecialist= specialistService.findByEmail(specialists.get(0).getEmail());
+        CheckValidation.memberTypespecialist = specialistService.findByEmail(specialists.get(0).getEmail());
         System.out.println(CheckValidation.memberTypespecialist.getEmail());
         return new ResponseEntity<>(specialists, HttpStatus.ACCEPTED);
     }
+
     @PostMapping("/searchCustomer")
     public ResponseEntity<List<CustomerResult>> searchCustomer(@RequestBody CustomerSearchDto customerSearchDto) {
-    if (customerSearchDto.getRegisterTime()==null) customerSearchDto.setRegisterTime(LocalTime.now());
-    List<CustomerResult> customers = customerService.searchCustomer(customerSearchDto);
+        if (customerSearchDto.getRegisterTime() == null) customerSearchDto.setRegisterTime(LocalTime.now());
+        List<CustomerResult> customers = customerService.searchCustomer(customerSearchDto);
         return new ResponseEntity<>(customers, HttpStatus.ACCEPTED);
     }
+
     @PostMapping("/advanceSearch")
-    public ResponseEntity<List<OrdersResult>> searchOrders(@RequestBody OrdersAdvanceSearchParameter ordersAdvanceSearchParameter ){
+    public ResponseEntity<List<OrdersResult>> searchOrders(@RequestBody OrdersAdvanceSearchParameter ordersAdvanceSearchParameter) {
         List<OrdersResult> ordersResults = ordersService.searchInDuty(ordersAdvanceSearchParameter);
-        if (ordersResults.size()==0){
+        if (ordersResults.size() == 0) {
             throw new CustomException("with this parameter not found any things");
-        }else {
+        } else {
             return new ResponseEntity<>(ordersService.searchInDuty(ordersAdvanceSearchParameter), HttpStatus.ACCEPTED);
         }
     }
-   CheckValidation checkValidation=new CheckValidation();
-DtoValidation dtoValidation=new DtoValidation();
+
+
     @PostMapping("/numberOfOrders")
-    public ResponseEntity<Long> numberOfOrders(@RequestBody CustomerDtoEmail customerDtoEmail){
+    public ResponseEntity<Long> numberOfOrders(@RequestBody CustomerDtoEmail customerDtoEmail) {
         dtoValidation.isValid(customerDtoEmail);
         Long numberOfOrders = ordersService.numberOfOrders(customerDtoEmail.getEmail());
         try {
@@ -153,7 +180,7 @@ DtoValidation dtoValidation=new DtoValidation();
             } else {
                 return new ResponseEntity<>(numberOfOrders, HttpStatus.ACCEPTED);
             }
-        }catch (CustomException e){
+        } catch (CustomException e) {
             throw new CustomException("with this email not found any member");
         }
     }

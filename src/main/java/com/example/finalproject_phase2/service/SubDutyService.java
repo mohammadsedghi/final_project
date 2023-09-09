@@ -2,9 +2,11 @@ package com.example.finalproject_phase2.service;
 
 import com.example.finalproject_phase2.dto.ProjectResponse;
 import com.example.finalproject_phase2.dto.dutyDto.DutyDto;
+import com.example.finalproject_phase2.dto.dutyDto.DutyNameDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDtoDescription;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyDto;
+import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
 import com.example.finalproject_phase2.entity.Duty;
 import com.example.finalproject_phase2.entity.Orders;
 import com.example.finalproject_phase2.entity.SubDuty;
@@ -15,9 +17,9 @@ import java.util.Set;
 
 public interface SubDutyService {
     SubDutyDto addSubDuty(SubDutyDto subDutyDto);
-    Set<SubDuty> showAllSubDutyOfDuty(DutyDto dutyDto);
-    SubDutyDto editSubDutyPrice(EditSubDutyDto editSubDutyDto);
-    SubDutyDto editSubDutyDescription(EditSubDutyDtoDescription editSubDutyDtoDescription);
+    Set<SubDutyNameDto> showAllSubDutyOfDuty(DutyNameDto dutyNameDto);
+    EditSubDutyDto editSubDutyPrice(EditSubDutyDto editSubDutyDto);
+    EditSubDutyDtoDescription editSubDutyDescription(EditSubDutyDtoDescription editSubDutyDtoDescription);
     boolean isExistSubDuty(String name);
     SubDutyDto findByName(String name);
     SubDuty findByNames(String name);

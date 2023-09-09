@@ -1,8 +1,11 @@
 package com.example.finalproject_phase2.service.impl;
 
+import com.example.finalproject_phase2.dto.dutyDto.DutyDto;
+import com.example.finalproject_phase2.dto.dutyDto.DutyNameDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDtoDescription;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyDto;
+import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
 import com.example.finalproject_phase2.entity.SubDuty;
 import com.example.finalproject_phase2.service.DutyService;
 import com.example.finalproject_phase2.service.SubDutyService;
@@ -56,20 +59,19 @@ class SubDutyServiceImplTest {
      Set<SubDuty> subDuties=new HashSet<>();
      subDuties.add(subDutyMapper.subDutyDtoToSubDuty(subDutyService.findByName("CD")));
         List<SubDuty> list1=new ArrayList<>(subDuties);
-        List<SubDuty> list2=new ArrayList<>(subDutyService.showAllSubDutyOfDuty( dutyService.findByName("AAA")));
-
-// assertEquals(subDuties,subDutyService.showAllSubDutyOfDuty(DutyMapper.dutyToDutyDto(dutyService.findByName("AAA"))));
-      // assertEquals(subDuties,subDutyService.showAllSubDutyOfDuty( dutyService.findByName("AAA")));
+        DutyNameDto dutyNameDto=new DutyNameDto();
+        dutyNameDto.setName("AAA");
+        List<SubDutyNameDto> list2=new ArrayList<>(subDutyService.showAllSubDutyOfDuty( dutyNameDto));
         assertEquals(list1.get(0).getName(),list2.get(0).getName());
     }
 
     @Test
     void editSubDutyPrice() {
-        SubDutyDto subDutyServiceByName = subDutyService.findByName("AB");
-        EditSubDutyDto editSubDutyDto1=new EditSubDutyDto();
-        editSubDutyDto1.setSubDuty(subDutyMapper.subDutyDtoToSubDuty(subDutyServiceByName));
-        editSubDutyDto1.setBasePrice("500");
-        assertEquals(subDutyServiceByName,subDutyService.editSubDutyPrice(editSubDutyDto1));
+        SubDuty subDuty = subDutyService.findByNames("AB");
+        EditSubDutyDto editSubDutyDto=new EditSubDutyDto();
+        editSubDutyDto.setSubDutyName(subDuty.getName());
+        editSubDutyDto.setBasePrice("500");
+        assertEquals(editSubDutyDto.getBasePrice(),subDutyService.editSubDutyPrice(editSubDutyDto).getBasePrice().toString());
     }
 //    @Test
 //    void findByName() {
@@ -80,9 +82,9 @@ class SubDutyServiceImplTest {
     void editSubDutyDescription() {
         SubDutyDto subDutyServiceByName = subDutyService.findByName("AB");
         EditSubDutyDtoDescription editSubDutyDtoDescription=new EditSubDutyDtoDescription();
-        editSubDutyDtoDescription.setSubDuty(subDutyMapper.subDutyDtoToSubDuty(subDutyServiceByName));
+        editSubDutyDtoDescription.setSubDutyName(subDutyServiceByName.getDutyName());
         editSubDutyDtoDescription.setDescription("hhh");
-        assertEquals(subDutyServiceByName,subDutyService.
+        assertEquals(editSubDutyDtoDescription,subDutyService.
                 editSubDutyDescription(editSubDutyDtoDescription));
     }
 

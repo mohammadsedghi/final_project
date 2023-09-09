@@ -1,7 +1,7 @@
 package com.example.finalproject_phase2.dto.subDutyDto;
-import com.example.finalproject_phase2.entity.SubDuty;
+
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,9 +14,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class EditSubDutyDto {
+
     @NotNull(message = "basePrice of SubDuty must be have value")
     String basePrice;
+    @NotNull(message = "subDutyName of SubDuty must be have value")
+    @Pattern(message = "subDutyName must be just letters",regexp = "^[a-zA-Z]+$")
+    String subDutyName;
 
-    SubDuty subDuty;
 
 }

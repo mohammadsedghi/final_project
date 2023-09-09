@@ -3,9 +3,12 @@ package com.example.finalproject_phase2.service.impl;
 import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.custom_exception.CustomNumberFormatException;
 import com.example.finalproject_phase2.dto.dutyDto.DutyDto;
+import com.example.finalproject_phase2.dto.dutyDto.DutyNameDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDtoDescription;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyDto;
+import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
+import com.example.finalproject_phase2.entity.Duty;
 import com.example.finalproject_phase2.entity.SubDuty;
 import com.example.finalproject_phase2.repository.SubDutyRepository;
 import com.example.finalproject_phase2.service.DutyService;
@@ -16,6 +19,7 @@ import com.example.finalproject_phase2.util.CheckValidation;
 import com.example.finalproject_phase2.util.CustomRegex;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,65 +48,67 @@ public class SubDutyServiceImpl implements SubDutyService {
                 throw new CustomException("input subDuty is invalid");
             }
             if (isExistSubDuty(subDutyDto.getName())){
-                throw new CustomException("duplicate subDuty is invalid");
+                throw new CustomException("duplicate subDuty is invalid you should be inter difference name");
             }
-            SubDuty subDuty = subDutyRepository.save(subDutyMapper.subDutyDtoToSubDuty(subDutyDto));
-          //  Set<SubDuty> subDuties = new HashSet<>();
-            subDuty.getDuty().getSubDuties().add(subDuty);
-            //subDuties.add(subDuty);
-            dutyService.addDuty(dutyMapper.dutyToDutyDto(subDuty.getDuty()));
+            Duty duty = dutyService.findByNames(subDutyDto.getDutyName());
+            SubDuty subDuty=new SubDuty(duty,subDutyDto.getName(),subDutyDto.getBasePrice(),subDutyDto.getDescription());
+            SubDuty subDutyCandidate = subDutyRepository.save(subDuty);
+            duty.getSubDuties().add(subDutyCandidate);
+            dutyService.UpdateDuty(duty);
             return  subDutyDto;
         } catch (CustomException ce) {
-            return new SubDutyDto();
+            throw new CustomException(ce.getMessage());
         }
-
     }
     @Override
-    public Set<SubDuty> showAllSubDutyOfDuty(DutyDto dutyDto) {
- return new HashSet<>(subDutyRepository.showSubDutyOfDuty(dutyMapper.dutyDtoToDuty(dutyDto)));
+    public boolean isExistSubDuty(String name) {
+       return subDutyRepository.isExistSubDuty(name).isPresent();
     }
     @Override
-    public SubDutyDto editSubDutyPrice(EditSubDutyDto editSubDutyDto) {
+    public Set<SubDutyNameDto> showAllSubDutyOfDuty(DutyNameDto dutyNameDto) {
+        Collection<SubDuty> subDuties = subDutyRepository.showSubDutyOfDuty(dutyService.findByNames(dutyNameDto.getName()));
+        Set<SubDutyNameDto> subDutyNameDtoSet=new HashSet<>();
+        for (SubDuty subDuty : subDuties
+        ){
+            SubDutyNameDto subDutyNameDto=new SubDutyNameDto();
+            subDutyNameDto.setName(subDuty.getName());
+            subDutyNameDtoSet.add(subDutyNameDto);
+        }
+        return subDutyNameDtoSet;
+    }
+    @Override
+    public EditSubDutyDto editSubDutyPrice(EditSubDutyDto editSubDutyDto) {
         CustomRegex customRegex = new CustomRegex();
         try {
+            SubDuty subDuty = findByNames(editSubDutyDto.getSubDutyName());
             if (customRegex.checkOneInputIsValid(editSubDutyDto.getBasePrice(), customRegex.getValidPrice())) {
-                SubDutyDto subDutyCandidate = findByName(editSubDutyDto.getSubDuty().getName());
-                subDutyCandidate.setBasePrice(Double.parseDouble(editSubDutyDto.getBasePrice()));
-                    subDutyRepository.save(subDutyMapper.subDutyDtoToSubDuty(subDutyCandidate));
-                    return subDutyCandidate;
+                subDuty.setBasePrice(Double.parseDouble(editSubDutyDto.getBasePrice()));
+                    subDutyRepository.save(subDuty);
+                    return editSubDutyDto;
             } else throw new CustomNumberFormatException("input basePrice is invalid");
         } catch (CustomNumberFormatException cnf) {
-           return new SubDutyDto();
+          throw new CustomNumberFormatException(cnf.getMessage());
         }
     }
     @Override
-    public SubDutyDto editSubDutyDescription(EditSubDutyDtoDescription editSubDutyDtoDescription) {
+    public EditSubDutyDtoDescription editSubDutyDescription(EditSubDutyDtoDescription editSubDutyDtoDescription) {
         CustomRegex customRegex = new CustomRegex();
         try {
             if (customRegex.checkOneInputIsValid(editSubDutyDtoDescription.getDescription(), customRegex.getValidStr())) {
-                SubDutyDto subDutyCandidate = findByName(editSubDutyDtoDescription.getSubDuty().getName());
-                subDutyCandidate.setDescription(editSubDutyDtoDescription.getDescription());
-                    subDutyRepository.save(subDutyMapper.subDutyDtoToSubDuty(subDutyCandidate));
-           return subDutyCandidate;
+                SubDuty subDuty = findByNames(editSubDutyDtoDescription.getSubDutyName());
+                subDuty.setDescription(editSubDutyDtoDescription.getDescription());
+                    subDutyRepository.save(subDuty);
+           return editSubDutyDtoDescription;
             } else {
                 throw new CustomException("input description is invalid");
             }
         } catch (CustomException ce) {
-            return new SubDutyDto();
+            throw new CustomException(ce.getMessage());
         }
 
     }
 
-    @Override
-    public boolean isExistSubDuty(String name) {
-      AtomicBoolean flag= new AtomicBoolean(false);
-            subDutyRepository.isExistSubDuty(name).ifPresent(
-                    subDuty -> {
-                       flag.set(true);
-                    }
-            );
-        return flag.get();
-    }
+
 
     @Override
     public SubDutyDto findByName(String name) {

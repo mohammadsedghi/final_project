@@ -105,7 +105,7 @@ public class MotherObject {
         Duty duty=new Duty("AAA",new HashSet<>());
         duty.setId(1l);
         return SubDutyDto.builder()
-                .duty(duty)
+                .dutyName(duty.getName())
                 .basePrice(12d)
                 .description("ABC")
                 .name("AB")
@@ -113,7 +113,7 @@ public class MotherObject {
     }
     public EditSubDutyDto getValidEditSubDutyInfo(SubDuty subDuty){
         return EditSubDutyDto.builder().
-                subDuty(subDuty)
+                subDutyName(subDuty.getName())
               .basePrice("500").
                 build();
     }

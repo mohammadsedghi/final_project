@@ -25,25 +25,33 @@ public class DutyServiceImpl implements DutyService {
     }
 
     @Override
-    public DutyDto addDuty(DutyDto dutyDto) {
+    public DutyDto addDuty(Duty duty) {
 
         try {
-            if (!checkValidation.isValid(dutyDto)) {
-                throw new CustomException("this duty  is invalid");
-            }
             dutyRepository.findAll().forEach(duty1 -> {
-                if (duty1.getName().equals(dutyDto.getName())) {
+                if (duty1.getName().equals(duty.getName())) {
                     throw new CustomException("this duty name is exist");
                 }
             });
-            dutyRepository.save(dutyMapper.dutyDtoToDuty(dutyDto));
-            return dutyDto;
+            dutyRepository.save(duty);
+            return dutyMapper.dutyToDutyDto(duty);
         } catch (CustomException ce) {
-            return new DutyDto();
-
+            throw new CustomException(ce.getMessage());
         }
 
     }
+    @Override
+    public DutyDto UpdateDuty(Duty duty) {
+
+        try {
+            dutyRepository.save(duty);
+            return dutyMapper.dutyToDutyDto(duty);
+        } catch (CustomException ce) {
+            throw new CustomException(ce.getMessage());
+        }
+
+    }
+
 
     @Override
     public Set<DutyDto> findAllByDuties() {

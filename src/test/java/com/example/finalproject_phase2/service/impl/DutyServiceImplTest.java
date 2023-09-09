@@ -1,6 +1,7 @@
 package com.example.finalproject_phase2.service.impl;
 
 import com.example.finalproject_phase2.dto.dutyDto.DutyDto;
+import com.example.finalproject_phase2.mapper.DutyMapper;
 import com.example.finalproject_phase2.service.DutyService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ class DutyServiceImplTest {
     DutyService dutyService;
     MotherObject motherObject;
     DutyDto dutyDto;
+    @Autowired
+    DutyMapper dutyMapper;
     @BeforeEach
     void setUp() {
       motherObject=new MotherObject();
@@ -26,7 +29,7 @@ class DutyServiceImplTest {
     @Test
     @Order(1)
     void addDuty() {
-        assertEquals(motherObject.getValidDutyDto(),dutyService.addDuty(motherObject.getValidDutyDto()));
+        assertEquals(motherObject.getValidDutyDto(),dutyService.addDuty(dutyMapper.dutyDtoToDuty(motherObject.getValidDutyDto())));
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.example.finalproject_phase2.entity;
+package com.example.finalproject_phase2.service.email;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

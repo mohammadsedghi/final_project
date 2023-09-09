@@ -1,6 +1,5 @@
 package com.example.finalproject_phase2.dto;
 
-import com.example.finalproject_phase2.base.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

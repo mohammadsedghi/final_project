@@ -9,7 +9,7 @@ import com.example.finalproject_phase2.dto.specialistDto.*;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.ValidSpecialistSuggestionDto;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
-import com.example.finalproject_phase2.entity.EmailRequest;
+import com.example.finalproject_phase2.service.email.EmailRequest;
 import com.example.finalproject_phase2.entity.Orders;
 import com.example.finalproject_phase2.entity.Specialist;
 import com.example.finalproject_phase2.entity.enumeration.SpecialistSelectionOfOrder;

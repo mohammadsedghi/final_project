@@ -8,8 +8,9 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface DutyService {
-    DutyDto addDuty(DutyDto dutyDto);
+    DutyDto addDuty(Duty duty);
     Set<DutyDto> findAllByDuties();
+    DutyDto UpdateDuty(Duty duty);
     DutyDto findByName(String name);
     Duty findByNames(String name);
 }
