@@ -1,6 +1,7 @@
 package com.example.finalproject_phase2.service.impl;
 
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistChangePasswordDto;
+import com.example.finalproject_phase2.dto.specialistDto.SpecialistEmailDto;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistScoreDto;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistSubDutyDto;
 import com.example.finalproject_phase2.entity.Duty;
@@ -43,23 +44,13 @@ class SpecialistServiceImplTest {
     @BeforeEach
     void setUp() {
         motherObject = new MotherObject();
-//        Duty duty=new Duty();
-//        duty.setId(1l);
-//        duty.setName("AAA");
-//        SubDuty subDuty=new SubDuty(duty,"AB",500.0,"YYY");
-//        subDuty.setId(602l);
-//        subDuty.setName("AB");
-//        subDuty.BasePrice(500.0);
-//        subDuty.setDescription(602l);
-
     }
 
 
     @Test
-    @Order(3)
     void confirmSpecialistByAdmin() {
-
-        specialistService.confirmSpecialistByAdmin(specialistMapper.specialistToSpecialistDto(specialistService.findByEmail("ali@gmail.com")));
+        SpecialistEmailDto specialistEmailDto=new SpecialistEmailDto("ali@gmail.com");
+        specialistService.confirmSpecialistByAdmin(specialistEmailDto);
     }
 
     @Test

@@ -66,11 +66,9 @@ public class OrdersServiceImpl implements OrdersService {
         try {
             CheckValidation checkValidation = new CheckValidation();
             CustomRegex customRegex = new CustomRegex();
-            System.out.println("2222");
             Optional<Customer> customer = customerService.findByEmail(submitOrderDto.getCustomerEmail());
             Specialist specialist = specialistService.findByEmail(submitOrderDto.getSpecialistEmail());
             SubDuty subDuty = subDutyService.findById(submitOrderDto.getSubDutyId());
-            System.out.println(true + "1");
             if (customer.isPresent() && specialist.getFirstName() != null && subDuty.getName() != null) {
                 if (!customRegex.checkOneInputIsValid(submitOrderDto.getProposedPrice(), customRegex.getValidPrice())) {
                     throw new CustomException("input  for orders is invalid");
@@ -102,13 +100,11 @@ public class OrdersServiceImpl implements OrdersService {
         } catch (CustomException ce) {
             return new OrdersDto();
         }
-        System.out.println(true + "3");
         return new OrdersDto();
     }
 
     @Override
     public Collection<Orders> showOrdersToSpecialist(SubDutyNameDto subDutyNameDtoDto) {
-        ;
         return ordersRepository.showOrdersToSpecialist(subDutyMapper.subDutyDtoToSubDuty(subDutyService.findByName(subDutyNameDtoDto.getName())), OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION, OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
     }
 
@@ -177,14 +173,21 @@ public class OrdersServiceImpl implements OrdersService {
         return ordersRepository.findById(id);
     }
 
-    public  Specification<Orders> countOrders(String email) {
+    public  Specification<Orders> countCustomerOrders(String email) {
         return(orders, cq, cb) -> cb.equal(orders.get("customer").get("email"), email);
     }
+    public  Specification<Orders> countSpecialistOrders(String email) {
+        return(orders, cq, cb) -> cb.equal(orders.get("specialist").get("email"), email);
+    }
           @Override
-           public Long numberOfOrders(String email ){
-            return ordersRepository.count(countOrders(email));
-
+           public Long numberOfOrders(String email ,String userType){
+        if (userType.equals("customer")){
+            return ordersRepository.count(countCustomerOrders(email));
         }
+        return ordersRepository.count(countSpecialistOrders(email));
+        }
+
+
     public  Specification<Orders> advanceSearchInOrders(
             SubDuty subDuty, String email, LocalDate localDateStart, LocalDate localDateEnd, OrderStatus status) {
         return (Root<Orders> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {

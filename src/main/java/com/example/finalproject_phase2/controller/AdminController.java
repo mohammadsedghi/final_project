@@ -9,7 +9,9 @@ import com.example.finalproject_phase2.dto.dutyDto.DutyNameDto;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersAdvanceSearchParameter;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersResult;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistDto;
+import com.example.finalproject_phase2.dto.specialistDto.SpecialistEmailDto;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistResult;
+import com.example.finalproject_phase2.dto.specialistDto.SpecialistSearchDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDtoDescription;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyDto;
@@ -35,9 +37,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -137,26 +137,37 @@ public class AdminController {
     }
 
     @PostMapping("/confirmByAdmin")
-    public ResponseEntity<SpecialistDto> confirmSpecialistByAdmin(@RequestBody SpecialistDto specialistDto) {
-        dtoValidation.isValid(specialistDto);
-        SpecialistDto specialistDtoCandidate = specialistService.confirmSpecialistByAdmin(specialistDto);
-        if (specialistDtoCandidate != null) return new ResponseEntity<>(specialistDtoCandidate, HttpStatus.ACCEPTED);
-        else throw new CustomException("confirm by admin have error");
+    public ResponseEntity<SpecialistEmailDto> confirmSpecialistByAdmin(@RequestBody SpecialistEmailDto specialistEmailDto) {
+        dtoValidation.isValid(specialistEmailDto);
+      return new ResponseEntity<>(specialistService.confirmSpecialistByAdmin(specialistEmailDto), HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/searchSpecialist")
-    public ResponseEntity<List<SpecialistResult>> searchSpecialist(@RequestBody SpecialistDto specialistDto) {
-        List<SpecialistResult> specialists = specialistService.searchSpecialist(specialistDto);
-        CheckValidation.memberTypespecialist = specialistService.findByEmail(specialists.get(0).getEmail());
-        System.out.println(CheckValidation.memberTypespecialist.getEmail());
+    public ResponseEntity<List<SpecialistResult>> searchSpecialist(@RequestBody SpecialistSearchDto  specialistSearchDto) {
+        if (specialistSearchDto.getRegisterTime() == null) specialistSearchDto.setRegisterTime(LocalTime.now());
+        List<SpecialistResult> specialists = specialistService.searchSpecialist(specialistSearchDto);
+       // CheckValidation.memberTypespecialist = specialistService.findByEmail(specialists.get(0).getEmail());
+      //  System.out.println(CheckValidation.memberTypespecialist.getEmail());
+//        Map<SpecialistResult,Long> map=new HashMap<>();
+//        for (SpecialistResult specialistResult:specialists
+//        ) {
+//            map.put(specialistResult,ordersService.numberOfOrders(specialistResult.getEmail(),"specialist")) ;
+//        }
+//        return new ResponseEntity<>(map, HttpStatus.ACCEPTED);
         return new ResponseEntity<>(specialists, HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/searchCustomer")
-    public ResponseEntity<List<CustomerResult>> searchCustomer(@RequestBody CustomerSearchDto customerSearchDto) {
+    public ResponseEntity<Map<CustomerResult,Long>> searchCustomer(@RequestBody CustomerSearchDto customerSearchDto) {
         if (customerSearchDto.getRegisterTime() == null) customerSearchDto.setRegisterTime(LocalTime.now());
         List<CustomerResult> customers = customerService.searchCustomer(customerSearchDto);
-        return new ResponseEntity<>(customers, HttpStatus.ACCEPTED);
+        Map<CustomerResult,Long> map=new HashMap<>();
+        for (CustomerResult customerResult:customers
+             ) {
+            System.out.println(customerResult.getEmail());
+           map.put(customerResult,ordersService.numberOfOrders(customerResult.getEmail(),"customer")) ;
+        }
+        return new ResponseEntity<>(map, HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/advanceSearch")
@@ -170,18 +181,18 @@ public class AdminController {
     }
 
 
-    @PostMapping("/numberOfOrders")
-    public ResponseEntity<Long> numberOfOrders(@RequestBody CustomerDtoEmail customerDtoEmail) {
-        dtoValidation.isValid(customerDtoEmail);
-        Long numberOfOrders = ordersService.numberOfOrders(customerDtoEmail.getEmail());
-        try {
-            if (numberOfOrders == 0) {
-                throw new CustomException("with this email not found any orders");
-            } else {
-                return new ResponseEntity<>(numberOfOrders, HttpStatus.ACCEPTED);
-            }
-        } catch (CustomException e) {
-            throw new CustomException("with this email not found any member");
-        }
-    }
+//    @PostMapping("/numberOfOrders")
+//    public ResponseEntity<Long> numberOfOrders(@RequestBody CustomerDtoEmail customerDtoEmail) {
+//        dtoValidation.isValid(customerDtoEmail);
+//        Long numberOfOrders = ordersService.numberOfOrders(customerDtoEmail.getEmail());
+//        try {
+//            if (numberOfOrders == 0) {
+//                throw new CustomException("with this email not found any orders");
+//            } else {
+//                return new ResponseEntity<>(numberOfOrders, HttpStatus.ACCEPTED);
+//            }
+//        } catch (CustomException e) {
+//            throw new CustomException("with this email not found any member");
+//        }
+//    }
 }

@@ -5,6 +5,10 @@ import com.example.finalproject_phase2.dto.customerDto.CustomerLoginDto;
 import com.example.finalproject_phase2.dto.customerDto.CustomerResult;
 import com.example.finalproject_phase2.dto.customerDto.CustomerSearchDto;
 import com.example.finalproject_phase2.entity.Customer;
+import com.example.finalproject_phase2.entity.Orders;
+import com.example.finalproject_phase2.entity.Person;
+import com.example.finalproject_phase2.entity.SubDuty;
+import com.example.finalproject_phase2.entity.enumeration.OrderStatus;
 import com.example.finalproject_phase2.service.email.EmailRequest;
 import com.example.finalproject_phase2.mapper.CustomerMapper;
 import com.example.finalproject_phase2.repository.CustomerRepository;
@@ -15,7 +19,12 @@ import com.example.finalproject_phase2.service.CustomerService;
 import com.example.finalproject_phase2.service.WalletService;
 import com.example.finalproject_phase2.service.email.MailService;
 import com.example.finalproject_phase2.util.CheckValidation;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -72,7 +81,7 @@ public class CustomerServiceImpl implements CustomerService {
         emailRequest.setTo(customer.getEmail());
         emailRequest.setSubject("activate account");
         emailRequest.setText("Click the following link to activate your account: http://localhost:8080/api/customer/activate?token=" + jwtToken);
-        mailService.sendEmail(emailRequest.getTo(),emailRequest.getSubject(), emailRequest.getText());
+        mailService.sendEmail(emailRequest.getTo(), emailRequest.getSubject(), emailRequest.getText());
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
@@ -92,6 +101,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .token(jwtToken)
                 .build();
     }
+
     @Override
     public boolean isAccountActivated(String token) {
         System.out.println("this token" + this.token);
@@ -136,11 +146,8 @@ public class CustomerServiceImpl implements CustomerService {
                 .and(hasCustomerWithThisNationalId(searchCustomer.getNationalId()))
                 .and(hasCustomerSubmitBeforeThisTime(searchCustomer.getRegisterTime()))
         ).forEach(customer -> customerList.add(new CustomerResult(customer.getFirstName(), customer.getLastName(), customer.getEmail())));
-
         return customerList;
     }
-
-
 
     @Override
     public boolean changePassword(String email, String newPassword) {

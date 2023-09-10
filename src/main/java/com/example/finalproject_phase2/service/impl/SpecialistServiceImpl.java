@@ -155,25 +155,15 @@ private String token;
 
 
     @Override
-    public SpecialistDto confirmSpecialistByAdmin(SpecialistDto specialistDto) {
+    public SpecialistEmailDto confirmSpecialistByAdmin(SpecialistEmailDto specialistEmailDto) {
         try {
-            Set<Specialist> unConfirmSpecialist = new HashSet<>(specialistRepository.showUnConfirmSpecialist(SpecialistRegisterStatus.WAITING_FOR_CONFIRM));
-            if (unConfirmSpecialist.size() == 0) {
-                throw new CustomNoResultException("no specialist unConfirm found");
-            } else {
-                for (Specialist specialistCandidate : unConfirmSpecialist
-                ) {
-                    if (specialistCandidate.getEmail().equals(specialistMapper.specialistDtoToSpecialist(specialistDto).getEmail())) {
-                        Specialist specialist = findByEmail(specialistCandidate.getEmail());
-                        specialist.setStatus(SpecialistRegisterStatus.CONFIRM);
-                        specialistRepository.save(specialist);
-                    }
-                }
-            }
+            Specialist specialist1 = findByEmail(specialistEmailDto.getEmail());
+            specialist1.setStatus(SpecialistRegisterStatus.CONFIRM);
+            specialistRepository.save(specialist1);
         } catch (CustomNoResultException cnr) {
-            return new SpecialistDto();
+           throw new CustomNoResultException("confirm process have error");
         }
-        return specialistDto;
+        return specialistEmailDto;
     }
     @Override
     public Boolean addSpecialistToSubDuty(SpecialistSubDutyDto specialistSubDutyDto) {
@@ -258,6 +248,7 @@ private String token;
     public Specialist findByEmail(String email) {
         return specialistRepository.findByEmail(email).get();
     }
+
     @Override
     public Optional<Specialist> findByEmailOptional(String email) {
         Optional<Specialist> specialist = specialistRepository.findByEmail(email);
@@ -276,31 +267,37 @@ private String token;
     }
 
 
-    public Specification<Specialist> hasCustomerWithThisEmail(String email) {
+    public Specification<Specialist> hasSpecialistWithThisEmail(String email) {
         return (specialist, cq, cb) -> cb.like(specialist.get("email"),"%"+ email+"%");
     }
 
-    public  Specification<Specialist> hasCustomerWithThisFirstName(String firstName) {
+    public  Specification<Specialist> hasSpecialistWithThisFirstName(String firstName) {
         return (specialist, cq, cb) -> cb.like(specialist.get("firstName"), "%" + firstName + "%");
     }
 
-    public  Specification<Specialist> hasCustomerWithThisLastName(String lastName) {
+    public  Specification<Specialist> hasSpecialistWithThisLastName(String lastName) {
         return (specialist, cq, cb) -> cb.like(specialist.get("lastName"), "%" + lastName + "%");
     }
-    public  Specification<Specialist> hasCustomerWithThisNationalId(String nationalId) {
+    public  Specification<Specialist> hasSpecialistWithThisNationalId(String nationalId) {
         return (specialist, cq, cb) -> cb.like(specialist.get("nationalId"), "%" + nationalId + "%");
+    }
+    public Specification<Specialist> hasSpecialistSubmitBeforeThisTime(LocalTime registerTime) {
+        return (specialist, cq, cb) ->
+                cb.lessThanOrEqualTo(specialist.get("registerTime"), registerTime);
     }
 
     @Override
-    public List<SpecialistResult> searchSpecialist(SpecialistDto specialistDto) {
-        Specialist searchSpecialist = specialistMapper.specialistDtoToSpecialist(specialistDto);
+    public List<SpecialistResult> searchSpecialist(SpecialistSearchDto specialistSearchDto) {
+        Specialist searchSpecialist=specialistMapper.specialistSearchDtoToSpecialist(specialistSearchDto);
         List<SpecialistResult> specialistList=new ArrayList<>();
-        specialistRepository.findAll(where(hasCustomerWithThisEmail(
+        specialistRepository.findAll(where(hasSpecialistWithThisEmail(
                 searchSpecialist.getEmail())).
-                and(hasCustomerWithThisFirstName(searchSpecialist.getFirstName())).
-                and(hasCustomerWithThisLastName(searchSpecialist.getLastName()))
-                .and(hasCustomerWithThisNationalId(searchSpecialist.getNationalId()))
+                and(hasSpecialistWithThisFirstName(searchSpecialist.getFirstName())).
+                and(hasSpecialistWithThisLastName(searchSpecialist.getLastName())).
+                and(hasSpecialistWithThisNationalId(searchSpecialist.getNationalId())).
+                and(hasSpecialistSubmitBeforeThisTime(searchSpecialist.getRegisterTime()))
         ).forEach(specialist -> specialistList.add(new SpecialistResult(specialist.getFirstName(),specialist.getLastName(),specialist.getEmail())));
+        System.out.println(specialistList.get(0).getEmail());
             return specialistList;
 
     }

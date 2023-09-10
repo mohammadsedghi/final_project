@@ -18,7 +18,7 @@ public interface SpecialistService {
      AuthenticationResponse register(MultipartFile file,SpecialistRegisterDto specialistRegisterDto);
     boolean isAccountActivated(String token);
     AuthenticationResponse authenticate(SpecialistLoginDto specialistLoginDto);
-    SpecialistDto confirmSpecialistByAdmin(SpecialistDto specialistDto);
+    SpecialistEmailDto confirmSpecialistByAdmin(SpecialistEmailDto specialistEmailDto);
     Boolean addSpecialistToSubDuty(SpecialistSubDutyDto specialistSubDutyDto);
     boolean changePassword(String email,String password );
     void removeSpecialistFromDuty();
@@ -28,5 +28,5 @@ public interface SpecialistService {
      Specialist findByEmail(String email);
     Optional<Specialist> findByEmailOptional(String email);
     Integer updateSpecialistScore(SpecialistScoreDto specialistScoreDto);
-     List<SpecialistResult> searchSpecialist(SpecialistDto specialistDto);
+    List<SpecialistResult> searchSpecialist(SpecialistSearchDto specialistDto);
 }
