@@ -2,13 +2,11 @@ package com.example.finalproject_phase2.service.impl;
 
 import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDto;
+import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersDto;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersDtoWithOrdersStatus;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistScoreDto;
-import com.example.finalproject_phase2.dto.specialistSuggestionDto.SpecialistSuggestionDto;
-import com.example.finalproject_phase2.dto.specialistSuggestionDto.StatusOrderSpecialistSuggestionDto;
-import com.example.finalproject_phase2.dto.specialistSuggestionDto.StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist;
-import com.example.finalproject_phase2.dto.specialistSuggestionDto.ValidSpecialistSuggestionDto;
+import com.example.finalproject_phase2.dto.specialistSuggestionDto.*;
 import com.example.finalproject_phase2.entity.*;
 import com.example.finalproject_phase2.entity.enumeration.OrderStatus;
 import com.example.finalproject_phase2.entity.enumeration.SpecialistSelectionOfOrder;
@@ -29,6 +27,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionService {
@@ -65,7 +64,7 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
                 throw new CustomException("order time of work is not valid");
             }
             OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus = new OrdersDtoWithOrdersStatus();
-            ordersDtoWithOrdersStatus.setOrders(validSpecialistSuggestionDto.getOrders());
+            ordersDtoWithOrdersStatus.setOrdersId(validSpecialistSuggestionDto.getOrders().getId());
             ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
             SpecialistSuggestion specialistSuggestion = SpecialistSuggestion.builder()
                     .specialist(validSpecialistSuggestionDto.getSpecialist())
@@ -90,22 +89,44 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
     }
 
     @Override
-    public List<SpecialistSuggestionDto> findCustomerOrderSuggestionOnPrice(CustomerDto customerDto) {
+    public List<SpecialistSuggestionResult> findCustomerOrderSuggestionOnPrice(CustomerDtoEmail customerDtoEmail) {
+        List<SpecialistSuggestionResult> results=new ArrayList<>();
         Collection<SpecialistSuggestionDto> specialistSuggestionDtoCollection = specialistSuggestionMapper.
-                specialistSuggestionCollectionToSpecialistSuggestionCollectionDto(specialistSuggestionRepository.findCustomerOrderSuggestionOnPrice(customerMapper.customerDtoToCustomer(customerDto)));
-    return new ArrayList<>(specialistSuggestionDtoCollection);
+                specialistSuggestionCollectionToSpecialistSuggestionCollectionDto(specialistSuggestionRepository.
+                        findCustomerOrderSuggestionOnPrice(customerDtoEmail.getEmail()));
+        specialistSuggestionDtoCollection.forEach(specialistSuggestionDto ->
+        results.add(new SpecialistSuggestionResult(
+                specialistSuggestionDto.getSpecialist().getFirstName(),
+                specialistSuggestionDto.getSpecialist().getLastName(),
+                specialistSuggestionDto.getSpecialist().getScore(),
+                specialistSuggestionDto.getProposedPrice(),
+                specialistSuggestionDto.getTimeOfStartWork(),
+                specialistSuggestionDto.getDateOfStartWork(),
+                specialistSuggestionDto.getDurationOfWorkPerHour())));
+        return results;
+   // return new ArrayList<>(specialistSuggestionDtoCollection);
     }
     @Override
-    public List<SpecialistSuggestionDto> findCustomerOrderSuggestionOnScoreOfSpecialist(CustomerDto customerDto) {
+    public List<SpecialistSuggestionResult> findCustomerOrderSuggestionOnScoreOfSpecialist(CustomerDtoEmail customerDtoEmail) {
+       List<SpecialistSuggestionResult> results=new ArrayList<>();
         Collection<SpecialistSuggestionDto> specialistSuggestionDtoCollection = specialistSuggestionMapper.
-                specialistSuggestionCollectionToSpecialistSuggestionCollectionDto( specialistSuggestionRepository.findCustomerOrderSuggestionOnScoreOfSpecialist(customerMapper.customerDtoToCustomer(customerDto)));
-        return new ArrayList<>(specialistSuggestionDtoCollection);
+                specialistSuggestionCollectionToSpecialistSuggestionCollectionDto( specialistSuggestionRepository.findCustomerOrderSuggestionOnScoreOfSpecialist(customerDtoEmail.getEmail()));
+        specialistSuggestionDtoCollection.forEach(specialistSuggestionDto ->
+            results.add(new SpecialistSuggestionResult(
+                    specialistSuggestionDto.getSpecialist().getFirstName(),
+                    specialistSuggestionDto.getSpecialist().getLastName(),
+                    specialistSuggestionDto.getSpecialist().getScore(),
+                    specialistSuggestionDto.getProposedPrice(),
+                    specialistSuggestionDto.getTimeOfStartWork(),
+                    specialistSuggestionDto.getDateOfStartWork(),
+                    specialistSuggestionDto.getDurationOfWorkPerHour())));
+        return results;
     }
     @Override
     public Boolean changeStatusOrderToWaitingForSpecialistToWorkplace(StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist) {
         statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.getOrders().setSpecialist(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.getSpecialist());
         OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus = new OrdersDtoWithOrdersStatus();
-        ordersDtoWithOrdersStatus.setOrders(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.getOrders());
+        ordersDtoWithOrdersStatus.setOrdersId(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.getOrders().getId());
         ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_WAITING_FOR_SPECIALIST_TO_WORKPLACE);
         ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
         return true;
@@ -124,9 +145,10 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
     @Override
     public Boolean changeStatusOrderToStarted( StatusOrderSpecialistSuggestionDto statusOrderSpecialistSuggestionDto) {
         try {
-            if (statusOrderSpecialistSuggestionDto.getSpecialistSuggestion().getSpecialistSelectionOfOrder() == SpecialistSelectionOfOrder.SELECTED) {
+            SpecialistSuggestion specialistSuggestion = findById(statusOrderSpecialistSuggestionDto.getSpecialistSuggestionId());
+            if (specialistSuggestion.getSpecialistSelectionOfOrder() == SpecialistSelectionOfOrder.SELECTED) {
                 OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus = new OrdersDtoWithOrdersStatus();
-                ordersDtoWithOrdersStatus.setOrders(statusOrderSpecialistSuggestionDto.getOrders());
+                ordersDtoWithOrdersStatus.setOrdersId(statusOrderSpecialistSuggestionDto.getOrdersId());
                 ordersDtoWithOrdersStatus.setOrderStatus( OrderStatus.ORDER_STARTED);
                 ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
             } else {
@@ -141,20 +163,20 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
     }
 
     @Override
-    public Boolean changeStatusOrderToDone(OrdersDto ordersDto) {
+    public Boolean changeStatusOrderToDone(OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus) {
         try {
-            if (ordersMapper.ordersDtoToOrders(ordersDto).getOrderStatus() == OrderStatus.ORDER_STARTED) {
-                OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus = new OrdersDtoWithOrdersStatus();
-                ordersDtoWithOrdersStatus.setOrders(ordersMapper.ordersDtoToOrders(ordersDto));
+            Optional<Orders> order = ordersService.findById(ordersDtoWithOrdersStatus.getOrdersId());
+           if (order.isPresent()){
+            if (order.get().getOrderStatus() == OrderStatus.ORDER_STARTED) {
                 ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_DONE);
                 ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
-            } else {
+            }else {
                 throw new CustomException("customer not permission change status of this" +
                         " order to started in this level");
             }
+           } else throw new CustomException("order with this id not found");
         } catch (CustomException ce) {
-            throw new CustomException("customer not permission change status of this" +
-                    " order to started in this level");
+            throw new CustomException(ce.getMessage());
         }
         return true;
 

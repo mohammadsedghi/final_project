@@ -290,14 +290,13 @@ private String token;
     public List<SpecialistResult> searchSpecialist(SpecialistSearchDto specialistSearchDto) {
         Specialist searchSpecialist=specialistMapper.specialistSearchDtoToSpecialist(specialistSearchDto);
         List<SpecialistResult> specialistList=new ArrayList<>();
-        specialistRepository.findAll(where(hasSpecialistWithThisEmail(
-                searchSpecialist.getEmail())).
+        specialistRepository.findAll(where(
+                hasSpecialistWithThisEmail(searchSpecialist.getEmail())).
                 and(hasSpecialistWithThisFirstName(searchSpecialist.getFirstName())).
                 and(hasSpecialistWithThisLastName(searchSpecialist.getLastName())).
                 and(hasSpecialistWithThisNationalId(searchSpecialist.getNationalId())).
                 and(hasSpecialistSubmitBeforeThisTime(searchSpecialist.getRegisterTime()))
         ).forEach(specialist -> specialistList.add(new SpecialistResult(specialist.getFirstName(),specialist.getLastName(),specialist.getEmail())));
-        System.out.println(specialistList.get(0).getEmail());
             return specialistList;
 
     }

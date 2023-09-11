@@ -1,8 +1,11 @@
 package com.example.finalproject_phase2.service.impl;
 
+import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersDto;
+import com.example.finalproject_phase2.dto.ordersDto.OrdersDtoWithOrdersStatus;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.*;
 import com.example.finalproject_phase2.entity.SpecialistSuggestion;
+import com.example.finalproject_phase2.entity.enumeration.OrderStatus;
 import com.example.finalproject_phase2.entity.enumeration.SpecialistSelectionOfOrder;
 import com.example.finalproject_phase2.service.*;
 import com.example.finalproject_phase2.mapper.CustomerMapper;
@@ -14,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -73,17 +78,15 @@ class SpecialistSuggestionServiceImplTest {
     }
     @Test
     void findCustomerOrderSuggestionOnPrice(){
-
-         specialistSuggestionService.findCustomerOrderSuggestionOnPrice
-                 (customerMapper.customerToCustomerDto(customerService.findByEmail("mahan@gmail.com").get())).
-                 forEach(specialistSuggestion -> System.out.println(specialistSuggestion.getProposedPrice()));
+        CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail("mahan@gmail.com");
+         specialistSuggestionService.findCustomerOrderSuggestionOnPrice(customerDtoEmail).
+  forEach(specialistSuggestion -> System.out.println(specialistSuggestion.getProposedPrice()));
     }
     @Test
     void findCustomerOrderSuggestionOnScoreOfSpecialist(){
-
-        specialistSuggestionService.findCustomerOrderSuggestionOnPrice
-                        (customerMapper.customerToCustomerDto(customerService.findByEmail("mahan@gmail.com").get())).
-                forEach(specialistSuggestion -> System.out.println(specialistSuggestion.getSpecialist().getScore()));
+        CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail("mahan@gmail.com");
+        List<SpecialistSuggestionResult> result = specialistSuggestionService.findCustomerOrderSuggestionOnPrice(customerDtoEmail);
+assertEquals(5,result.get(0).getScore());
     }
     @Test
     void findSuggestWithThisSpecialistAndOrder() {
@@ -112,14 +115,16 @@ class SpecialistSuggestionServiceImplTest {
     void changeStatusOrderToStarted(){
        SpecialistSuggestion specialistSuggestion = specialistSuggestionService.findById(2l);
        StatusOrderSpecialistSuggestionDto statusOrderSpecialistSuggestionDto=new StatusOrderSpecialistSuggestionDto();
-       statusOrderSpecialistSuggestionDto.setSpecialistSuggestion(specialistSuggestion);
-       statusOrderSpecialistSuggestionDto.setOrders(ordersService.findById(1l).get());
+       statusOrderSpecialistSuggestionDto.setSpecialistSuggestionId(specialistSuggestion.getId());
+       statusOrderSpecialistSuggestionDto.setOrdersId(1l);
         assertEquals(true,specialistSuggestionService.changeStatusOrderToStarted(statusOrderSpecialistSuggestionDto));
    }
    @Test
     void changeStatusOrderToDone(){
-       OrdersDto ordersDto= ordersMapper.ordersToOrdersDto(ordersService.findById(1l).get());
-       assertEquals(true,specialistSuggestionService.changeStatusOrderToDone(ordersDto));
+       OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus=new OrdersDtoWithOrdersStatus();
+       ordersDtoWithOrdersStatus.setOrdersId(1l);
+       ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_DONE);
+       assertEquals(true,specialistSuggestionService.changeStatusOrderToDone(ordersDtoWithOrdersStatus));
    }
    @Test
     void CheckTimeOfWork(){

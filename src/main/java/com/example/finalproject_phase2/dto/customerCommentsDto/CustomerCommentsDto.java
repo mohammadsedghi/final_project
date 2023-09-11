@@ -14,7 +14,7 @@ import org.hibernate.validator.constraints.Range;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class CustomerCommentsDto {
-    Orders orders;
+    Long  ordersId;
     @Pattern(message = "description of CustomerComments must be just letters",regexp = "^[a-zA-Z]+$")
     @NotNull(message = "description of  CustomerComments must be have value")
     String description;

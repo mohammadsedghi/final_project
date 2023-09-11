@@ -14,9 +14,9 @@ import java.util.Optional;
 public interface SpecialistSuggestionRepository extends JpaRepository<SpecialistSuggestion,Long> {
     @Query("select ss from SpecialistSuggestion ss where ss.specialist=:specialist and ss.order=:orders ")
     Optional<SpecialistSuggestion> findSuggestWithThisSpecialistAndOrder(Specialist specialist, Orders orders);
-   @Query("select ss from SpecialistSuggestion ss where ss.order.customer=:customer order by ss.proposedPrice")
-    List<SpecialistSuggestion> findCustomerOrderSuggestionOnPrice(Customer customer);
-    @Query("select ss from SpecialistSuggestion ss where ss.order.customer=:customer order by ss.specialist.score")
-    List<SpecialistSuggestion> findCustomerOrderSuggestionOnScoreOfSpecialist(Customer customer);
+   @Query("select ss from SpecialistSuggestion ss where ss.order.customer.email=:email order by ss.proposedPrice")
+    List<SpecialistSuggestion> findCustomerOrderSuggestionOnPrice(String email);
+    @Query("select ss from SpecialistSuggestion ss where ss.order.customer.email=:email order by ss.specialist.score")
+    List<SpecialistSuggestion> findCustomerOrderSuggestionOnScoreOfSpecialist(String email);
     Optional<SpecialistSuggestion> findById(Long id);
 }

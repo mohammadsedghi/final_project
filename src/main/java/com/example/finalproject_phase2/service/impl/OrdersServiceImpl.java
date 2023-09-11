@@ -110,25 +110,30 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public Orders updateOrderToNextLevel(OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus) {
-        ordersDtoWithOrdersStatus.getOrders().setOrderStatus(ordersDtoWithOrdersStatus.getOrderStatus());
-        ordersDtoWithOrdersStatus.getOrders().setId(1l);
-        ordersRepository.save(ordersDtoWithOrdersStatus.getOrders());
-        return ordersDtoWithOrdersStatus.getOrders();
+        Optional<Orders> optionalOrders = findById(ordersDtoWithOrdersStatus.getOrdersId());
+        try {
+            if (optionalOrders.isPresent()){
+            optionalOrders.get().setOrderStatus(ordersDtoWithOrdersStatus.getOrderStatus());
+            ordersRepository.save( optionalOrders.get());
+            }else throw new CustomException(" order with this id not found");
+        }catch (CustomException ce){
+            throw new CustomException(ce.getMessage());
+        }
+        return  optionalOrders.get();
     }
 
     @Override
     public OrdersDto findOrdersWithThisCustomerAndSubDuty(OrdersDtoWithCustomerAndSubDuty ordersDtoWithCustomerAndSubDuty) {
         try {
-            ordersRepository.findOrdersWithThisCustomerAndSubDuty(ordersDtoWithCustomerAndSubDuty.getCustomer(), ordersDtoWithCustomerAndSubDuty.getSubDuty(), OrderStatus.ORDER_DONE).ifPresent(
-                    orders -> {
-                        throw new CustomDuplicateInfoException("this customer submit order for this subDuty");
-                    });
-
+            Optional<Customer> customer = customerService.findByEmail(ordersDtoWithCustomerAndSubDuty.getCustomerEmail());
+            SubDuty subDuty = subDutyService.findByNames(ordersDtoWithCustomerAndSubDuty.getSubDutyName());
+            Collection<Orders> orders = ordersRepository.findOrdersWithThisCustomerAndSubDuty(customer.get(), subDuty, OrderStatus.ORDER_DONE);
+           if (orders.size()>0){ throw new CustomDuplicateInfoException("this customer have open order for this subDuty");
+           }
         } catch (CustomDuplicateInfoException cdi) {
-            throw new CustomDuplicateInfoException("this customer submit order for this subDuty");
+            throw new CustomDuplicateInfoException(cdi.getMessage());
         }
         return new OrdersDto();
-
     }
 
 

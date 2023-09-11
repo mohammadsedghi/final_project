@@ -13,8 +13,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 public class OrdersDtoWithOrdersStatus {
-    @NotNull(message = "order must be have value")
-    Orders orders;
-    @NotNull(message = "order must be have value")
+    @NotNull(message = "order id must be have value")
+    Long ordersId;
+    @NotNull(message = "order status must be have value")
     OrderStatus orderStatus;
 }

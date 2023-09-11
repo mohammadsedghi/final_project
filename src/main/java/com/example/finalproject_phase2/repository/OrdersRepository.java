@@ -17,7 +17,7 @@ public interface OrdersRepository extends JpaRepository<Orders,Long>,JpaSpecific
     @Query("select o from Orders o where o.subDuty = :subDuty and (o.orderStatus = :orderStatusWaitingForSuggest or o.orderStatus = :orderStatusWaitingForSelect)")
     Collection<Orders> showOrdersToSpecialist(SubDuty subDuty,OrderStatus orderStatusWaitingForSuggest,OrderStatus orderStatusWaitingForSelect );
     @Query("select o from Orders o where o.customer=:customer and o.subDuty=:subDuty and o.orderStatus !=:orderStatus")
-    Optional<Orders> findOrdersWithThisCustomerAndSubDuty(Customer customer, SubDuty subDuty,OrderStatus orderStatus);
+    Collection<Orders> findOrdersWithThisCustomerAndSubDuty(Customer customer, SubDuty subDuty,OrderStatus orderStatus);
     @Query("select o from Orders o where o.customer.email=:email and o.orderStatus =:orderStatus")
     Collection<Orders> findOrdersInStatusWaitingForSpecialistSuggestion(String email , OrderStatus orderStatus);
     @Query("select o from Orders o where o.customer.email=:email or o.specialist.email=:email and o.orderStatus =:orderStatus")

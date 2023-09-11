@@ -80,15 +80,11 @@ class OrdersServiceImplTest {
     @Order(3)
     void updateOrderToNextLevel() {
         OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus=new OrdersDtoWithOrdersStatus();
-        ordersDtoWithOrdersStatus.setOrders(ordersService.findById(1l).get());
+        Orders orders = ordersService.findById(1l).get();
         ordersDtoWithOrdersStatus.setOrderStatus( OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
+        ordersDtoWithOrdersStatus.setOrdersId(orders.getId());
         OrderStatus orderStatus = ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus).getOrderStatus();
-        assertEquals(ordersService.findById(1l).get().getOrderStatus(),orderStatus);
-        OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus1=new OrdersDtoWithOrdersStatus();
-        ordersDtoWithOrdersStatus.setOrders(ordersService.findById(1l).get());
-        ordersDtoWithOrdersStatus.setOrderStatus( OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION);
-        ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus1);
-
+        assertNotEquals(orders.getOrderStatus(),orderStatus);
     }
 
     @Test
@@ -115,70 +111,75 @@ class OrdersServiceImplTest {
     @Order(6)
     void findOrdersInStatusWaitingForSpecialistSelection() {
         OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus=new OrdersDtoWithOrdersStatus();
-        ordersDtoWithOrdersStatus.setOrders(ordersService.findById(1l).get());
+        Orders orders = ordersService.findById(1l).get();
         ordersDtoWithOrdersStatus.setOrderStatus( OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
+        ordersDtoWithOrdersStatus.setOrdersId(orders.getId());
         ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
         Customer customer = customerService.findByEmail("mahan@gmail.com").get();
         CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail();
         customerDtoEmail.setEmail(customer.getEmail());
-        List<Orders>orders=new ArrayList<>(ordersService.findOrdersInStatusWaitingForSpecialistSelection(customerDtoEmail));
-        assertEquals(customer,orders.get(0).getCustomer());
+        List<Orders>ordersList=new ArrayList<>(ordersService.findOrdersInStatusWaitingForSpecialistSelection(customerDtoEmail));
+        assertEquals(customer,ordersList.get(0).getCustomer());
     }
 
     @Test
     @Order(7)
     void findOrdersInStatusWaitingForSpecialistToWorkplace() {
         OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus=new OrdersDtoWithOrdersStatus();
-        ordersDtoWithOrdersStatus.setOrders(ordersService.findById(1l).get());
+        Orders orders = ordersService.findById(1l).get();
         ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_WAITING_FOR_SPECIALIST_TO_WORKPLACE);
+       ordersDtoWithOrdersStatus.setOrdersId(orders.getId());
         ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
         Customer customer = customerService.findByEmail("mahan@gmail.com").get();
         CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail();
         customerDtoEmail.setEmail(customer.getEmail());
-        List<Orders>orders=new ArrayList<>(ordersService.findOrdersInStatusWaitingForSpecialistToWorkplace(customerDtoEmail));
-        assertEquals(customer,orders.get(0).getCustomer());
+        List<Orders>ordersList=new ArrayList<>(ordersService.findOrdersInStatusWaitingForSpecialistToWorkplace(customerDtoEmail));
+        assertEquals(customer,ordersList.get(0).getCustomer());
     }
 
     @Test
     @Order(8)
     void findOrdersInStatusStarted() {
         OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus=new OrdersDtoWithOrdersStatus();
-        ordersDtoWithOrdersStatus.setOrders(ordersService.findById(1l).get());
+        Orders orders = ordersService.findById(1l).get();
         ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_STARTED);
+        ordersDtoWithOrdersStatus.setOrdersId(orders.getId());
         ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
         Customer customer = customerService.findByEmail("mahan@gmail.com").get();
         CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail();
         customerDtoEmail.setEmail(customer.getEmail());
-        List<Orders>orders=new ArrayList<>(ordersService.findOrdersInStatusStarted(customerDtoEmail));
-        assertEquals(customer,orders.get(0).getCustomer());
+        List<Orders>ordersList=new ArrayList<>(ordersService.findOrdersInStatusStarted(customerDtoEmail));
+        assertEquals(customer,ordersList.get(0).getCustomer());
     }
 
     @Test
     @Order(9)
     void findOrdersInStatusPaid() {
         OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus=new OrdersDtoWithOrdersStatus();
-        ordersDtoWithOrdersStatus.setOrders(ordersService.findById(1l).get());
+        Orders orders = ordersService.findById(1l).get();
         ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_PAID);
+        ordersDtoWithOrdersStatus.setOrdersId(orders.getId());
         ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
         Customer customer = customerService.findByEmail("mahan@gmail.com").get();
         CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail();
         customerDtoEmail.setEmail(customer.getEmail());
-        List<Orders>orders=new ArrayList<>(ordersService.findOrdersInStatusPaid(customerDtoEmail));
-        assertEquals(customer,orders.get(0).getCustomer());
+        List<Orders>ordersList=new ArrayList<>(ordersService.findOrdersInStatusPaid(customerDtoEmail));
+        assertEquals(customer,ordersList.get(0).getCustomer());
     }
 
     @Test
     @Order(10)
     void findOrdersInStatusDone() {
         OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus=new OrdersDtoWithOrdersStatus();
-        ordersDtoWithOrdersStatus.setOrders(ordersService.findById(1l).get());
+        Orders orders = ordersService.findById(1l).get();
         ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_DONE);
+        ordersDtoWithOrdersStatus.setOrdersId(orders.getId());
         ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
         Customer customer = customerService.findByEmail("mahan@gmail.com").get();
         CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail();
         customerDtoEmail.setEmail(customer.getEmail());
-        List<Orders>orders=new ArrayList<>(ordersService.findOrdersInStatusDone(customerDtoEmail));
-        assertEquals(customer,orders.get(0).getCustomer());
+        List<Orders>ordersList=new ArrayList<>(ordersService.findOrdersInStatusDone(customerDtoEmail));
+        assertEquals(customer,ordersList.get(0).getCustomer());
         ordersDtoWithOrdersStatus.setOrderStatus(  OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION);
         ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
     }

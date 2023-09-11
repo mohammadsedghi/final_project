@@ -4,6 +4,7 @@ import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.ordersDto.*;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.SpecialistSuggestionDto;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.SpecialistSuggestionIdDto;
+import com.example.finalproject_phase2.dto.specialistSuggestionDto.SpecialistSuggestionResult;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.StatusOrderSpecialistSuggestionDto;
 import com.example.finalproject_phase2.entity.*;
 import com.example.finalproject_phase2.entity.enumeration.OrderStatus;
@@ -24,6 +25,7 @@ import com.example.finalproject_phase2.service.email.EmailRequest;
 import com.example.finalproject_phase2.service.email.MailService;
 import com.example.finalproject_phase2.util.CheckValidation;
 import com.example.finalproject_phase2.util.CustomRegex;
+import com.example.finalproject_phase2.util.validation.DtoValidation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -62,7 +64,7 @@ public class CustomerController {
     private CustomRegex customRegex=new CustomRegex();
     private final SpecialistService specialistService;
     CaptchaService captchaService=new CaptchaService();
-
+DtoValidation dtoValidation=new DtoValidation();
 
     @Autowired
     public CustomerController(CustomerService customerService, CustomerMapper customerMapper, AddressService addressService, CustomerCommentsService customerCommentsService, MailService mailService, AddressMapper addressMapper, OrdersService ordersService, SpecialistSuggestionService specialistSuggestionService, OrdersMapper ordersMapper, WalletService walletService, SpecialistService specialistService) {
@@ -136,26 +138,28 @@ public class CustomerController {
         }else  throw new CustomException("orders not saved");
     }
     @PostMapping("/findOrdersWithThisCustomerAndSubDuty")
-    public ResponseEntity<OrdersDto> findOrdersWithThisCustomerAndSubDuty(@RequestBody @Valid OrdersDtoWithCustomerAndSubDuty ordersDtoWithCustomerAndSubDuty ) {
+    public ResponseEntity<OrdersDto> findOrdersWithThisCustomerAndSubDuty(@RequestBody OrdersDtoWithCustomerAndSubDuty ordersDtoWithCustomerAndSubDuty ) {
+      dtoValidation.isValid(ordersDtoWithCustomerAndSubDuty);
         OrdersDto ordersDto = ordersService.findOrdersWithThisCustomerAndSubDuty(ordersDtoWithCustomerAndSubDuty);
-        if (ordersDto.getCustomer()!=null){
             return new ResponseEntity<>(ordersDto, HttpStatus.ACCEPTED);
-        }else throw new CustomException("orders not found");
     }
     @PostMapping("/updateOrderToNextLevelStatus")
-    public ResponseEntity<OrdersDto> updateOrderToNextLevelStatus(@RequestBody @Valid OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus ) {
+    public ResponseEntity<OrdersDto> updateOrderToNextLevelStatus(@RequestBody  OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus ) {
+        dtoValidation.isValid(ordersDtoWithOrdersStatus);
         OrdersDto ordersDto = ordersMapper.ordersToOrdersDto(ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus));
         return new ResponseEntity<>(ordersDto, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersInStatusWaitingForSpecialistSuggestion")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusWaitingForSpecialistSuggestion(@RequestBody @Valid CustomerDtoEmail customerDtoEmail ) {
+    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusWaitingForSpecialistSuggestion(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
+        dtoValidation.isValid(customerDtoEmail);
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusWaitingForSpecialistSuggestion(customerDtoEmail);
         Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
        if (ordersDtoCollection.size()==0){throw new CustomException("not order with this condition exist");
        }else return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersInStatusWaitingForSpecialistSelection")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusWaitingForSpecialistSelection(@RequestBody @Valid CustomerDtoEmail customerDtoEmail ) {
+    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusWaitingForSpecialistSelection(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
+        dtoValidation.isValid(customerDtoEmail);
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusWaitingForSpecialistSelection(customerDtoEmail);
         Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
         if (ordersDtoCollection.size()==0){
@@ -163,7 +167,8 @@ public class CustomerController {
         }else return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersInStatusWaitingForSpecialistToWorkplace")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusWaitingForSpecialistToWorkplace(@RequestBody @Valid CustomerDtoEmail customerDtoEmail) {
+    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusWaitingForSpecialistToWorkplace(@RequestBody  CustomerDtoEmail customerDtoEmail) {
+        dtoValidation.isValid(customerDtoEmail);
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusWaitingForSpecialistToWorkplace(customerDtoEmail);
         Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
         if (ordersDtoCollection.size()==0){
@@ -171,17 +176,20 @@ public class CustomerController {
         }return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
     }
     @PostMapping("/changeStatusOrderToStarted")
-    public ResponseEntity<Boolean> changeStatusOrderToStarted(@RequestBody @Valid StatusOrderSpecialistSuggestionDto statusOrderSpecialistSuggestionDto  ) {
+    public ResponseEntity<Boolean> changeStatusOrderToStarted(@RequestBody  StatusOrderSpecialistSuggestionDto statusOrderSpecialistSuggestionDto  ) {
+        dtoValidation.isValid(statusOrderSpecialistSuggestionDto);
         specialistSuggestionService.changeStatusOrderToStarted(statusOrderSpecialistSuggestionDto);
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/changeStatusOrderToDone")
-    public ResponseEntity<Boolean> changeStatusOrderToDone(@RequestBody @Valid OrdersDto ordersDto) {
-        specialistSuggestionService.changeStatusOrderToDone(ordersDto);
+    public ResponseEntity<Boolean> changeStatusOrderToDone(@RequestBody  OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus) {
+        dtoValidation.isValid(ordersDtoWithOrdersStatus);
+        specialistSuggestionService.changeStatusOrderToDone(ordersDtoWithOrdersStatus);
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersInStatusStarted")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusStarted(@RequestBody @Valid CustomerDtoEmail customerDtoEmail) {
+    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusStarted(@RequestBody  CustomerDtoEmail customerDtoEmail) {
+        dtoValidation.isValid(customerDtoEmail);
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusStarted(customerDtoEmail);
         Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
         if (ordersDtoCollection.size()==0){
@@ -189,7 +197,8 @@ public class CustomerController {
         }return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersInStatusDone")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusDone(@RequestBody @Valid CustomerDtoEmail customerDtoEmail ) {
+    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusDone(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
+        dtoValidation.isValid(customerDtoEmail);
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusDone(customerDtoEmail);
         Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
         if (ordersDtoCollection.size()==0){
@@ -197,7 +206,8 @@ public class CustomerController {
         } else return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersInStatusPaid")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusPaid(@RequestBody @Valid CustomerDtoEmail customerDtoEmail ) {
+    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusPaid(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
+        dtoValidation.isValid(customerDtoEmail);
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusPaid(customerDtoEmail);
         Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
         if (ordersDtoCollection.size()==0){
@@ -205,18 +215,21 @@ public class CustomerController {
         }else return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
     }
     @PostMapping("/submitCustomerComments")
-    public ResponseEntity<Boolean> submitCustomerComments(@RequestBody @Valid CustomerCommentsDto customerCommentsDto) {
+    public ResponseEntity<Boolean> submitCustomerComments(@RequestBody  CustomerCommentsDto customerCommentsDto) {
+        dtoValidation.isValid(customerCommentsDto);
         customerCommentsService.submitCustomerCommentsService(customerCommentsDto);
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findCustomerOrderSuggestionOnScore")
-    public ResponseEntity<List<SpecialistSuggestionDto>> findCustomerOrderSuggestionOnScoreOfSpecialist(@RequestBody @Valid CustomerDto customerDto) {
-        List<SpecialistSuggestionDto> customerOrderSuggestionOnScoreOfSpecialist = specialistSuggestionService.findCustomerOrderSuggestionOnScoreOfSpecialist(customerDto);
+    public ResponseEntity<List<SpecialistSuggestionResult>> findCustomerOrderSuggestionOnScoreOfSpecialist(@RequestBody CustomerDtoEmail customerDtoEmail ) {
+        dtoValidation.isValid(customerDtoEmail);
+        List<SpecialistSuggestionResult> customerOrderSuggestionOnScoreOfSpecialist = specialistSuggestionService.findCustomerOrderSuggestionOnScoreOfSpecialist(customerDtoEmail);
         return new ResponseEntity<>(customerOrderSuggestionOnScoreOfSpecialist, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findCustomerOrderSuggestionOnPrice")
-    public ResponseEntity<List<SpecialistSuggestionDto>> findCustomerOrderSuggestionOnPrice(@RequestBody @Valid CustomerDto CustomerDto ) {
-        List<SpecialistSuggestionDto> customerOrderSuggestionOnPrice = specialistSuggestionService.findCustomerOrderSuggestionOnPrice(CustomerDto);
+    public ResponseEntity<List<SpecialistSuggestionResult>> findCustomerOrderSuggestionOnPrice(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
+        dtoValidation.isValid(customerDtoEmail);
+        List<SpecialistSuggestionResult> customerOrderSuggestionOnPrice = specialistSuggestionService.findCustomerOrderSuggestionOnPrice(customerDtoEmail);
         return new ResponseEntity<>(customerOrderSuggestionOnPrice, HttpStatus.ACCEPTED);
     }
 
