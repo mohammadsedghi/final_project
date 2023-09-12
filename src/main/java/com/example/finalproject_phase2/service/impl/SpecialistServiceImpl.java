@@ -297,6 +297,7 @@ private String token;
                 and(hasSpecialistWithThisNationalId(searchSpecialist.getNationalId())).
                 and(hasSpecialistSubmitBeforeThisTime(searchSpecialist.getRegisterTime()))
         ).forEach(specialist -> specialistList.add(new SpecialistResult(specialist.getFirstName(),specialist.getLastName(),specialist.getEmail())));
+        System.out.println(specialistList.size());
             return specialistList;
 
     }

@@ -187,9 +187,15 @@ public class OrdersServiceImpl implements OrdersService {
           @Override
            public Long numberOfOrders(String email ,String userType){
         if (userType.equals("customer")){
+            System.out.println(userType);
             return ordersRepository.count(countCustomerOrders(email));
         }
-        return ordersRepository.count(countSpecialistOrders(email));
+        if (userType.equals("specialist")){
+            System.out.println(userType);
+            return ordersRepository.count(countSpecialistOrders(email));
+        }
+
+       return 0l;
         }
 
 

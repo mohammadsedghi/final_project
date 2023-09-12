@@ -149,6 +149,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customerList;
     }
 
+
     @Override
     public boolean changePassword(String email, String newPassword) {
         Customer user = customerRepository.findByEmail(email).

@@ -143,23 +143,37 @@ public class AdminController {
     }
 
     @PostMapping("/searchSpecialist")
-    public ResponseEntity<List<SpecialistResult>> searchSpecialist(@RequestBody SpecialistSearchDto  specialistSearchDto) {
-        if (specialistSearchDto.getRegisterTime() == null) specialistSearchDto.setRegisterTime(LocalTime.now());
+    public ResponseEntity<Map<SpecialistResult,Long>> searchSpecialist(@RequestBody SpecialistSearchDto  specialistSearchDto) {
+       if (specialistSearchDto.getRegisterTime()!=null) {
+           specialistSearchDto.setRegisterTime(
+               LocalTime.of(specialistSearchDto.getRegisterTime().getHour(),
+                       specialistSearchDto.getRegisterTime().getMinute(),
+                       specialistSearchDto.getRegisterTime().getSecond()+1));
+       }
+        if (specialistSearchDto.getRegisterTime() == null) specialistSearchDto.setRegisterTime(LocalTime.of(23,59));
+        System.out.println(specialistSearchDto.getRegisterTime());
         List<SpecialistResult> specialists = specialistService.searchSpecialist(specialistSearchDto);
-       // CheckValidation.memberTypespecialist = specialistService.findByEmail(specialists.get(0).getEmail());
+      //  CheckValidation.memberTypespecialist = specialistService.findByEmail(specialists.get(0).getEmail());
       //  System.out.println(CheckValidation.memberTypespecialist.getEmail());
-//        Map<SpecialistResult,Long> map=new HashMap<>();
-//        for (SpecialistResult specialistResult:specialists
-//        ) {
-//            map.put(specialistResult,ordersService.numberOfOrders(specialistResult.getEmail(),"specialist")) ;
-//        }
-//        return new ResponseEntity<>(map, HttpStatus.ACCEPTED);
-        return new ResponseEntity<>(specialists, HttpStatus.ACCEPTED);
+        Map<SpecialistResult,Long> map=new HashMap<>();
+        for (SpecialistResult specialistResult:specialists
+        ) {
+            System.out.println(specialistResult.getEmail());
+            map.put(specialistResult,ordersService.numberOfOrders(specialistResult.getEmail(),"specialist")) ;
+        }
+        System.out.println(map);
+        return new ResponseEntity<>(map, HttpStatus.ACCEPTED);
     }
-
     @PostMapping("/searchCustomer")
     public ResponseEntity<Map<CustomerResult,Long>> searchCustomer(@RequestBody CustomerSearchDto customerSearchDto) {
-        if (customerSearchDto.getRegisterTime() == null) customerSearchDto.setRegisterTime(LocalTime.now());
+        if (customerSearchDto.getRegisterTime()!=null){
+            customerSearchDto.setRegisterTime(
+                    LocalTime.of(customerSearchDto.getRegisterTime().getHour(),
+                            customerSearchDto.getRegisterTime().getMinute(),
+                            customerSearchDto.getRegisterTime().getSecond()+1));
+        }
+        if (customerSearchDto.getRegisterTime() == null) customerSearchDto.setRegisterTime(LocalTime.of(23,59));
+
         List<CustomerResult> customers = customerService.searchCustomer(customerSearchDto);
         Map<CustomerResult,Long> map=new HashMap<>();
         for (CustomerResult customerResult:customers
