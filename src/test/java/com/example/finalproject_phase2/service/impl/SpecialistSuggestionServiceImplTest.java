@@ -99,11 +99,8 @@ assertEquals(5,result.get(0).getScore());
     }
     @Test
    void changeStatusOrderToWaitingForSpecialistToWorkplace(){
-        StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist=new
-                StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist();
-        statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.setSpecialist( specialistService.findByEmail("ali@gmail.com"));
-        statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.setOrders(ordersService.findById(1l).get());
-      assertEquals(true,specialistSuggestionService.changeStatusOrderToWaitingForSpecialistToWorkplace(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist));
+
+      assertEquals(true,specialistSuggestionService.changeStatusOrderToWaitingForSpecialistToWorkplace(ordersService.findById(1l).get(),specialistService.findByEmail("ali@gmail.com")));
    }
    @Test
     void changeSpecialistSelectedOfOrder(){

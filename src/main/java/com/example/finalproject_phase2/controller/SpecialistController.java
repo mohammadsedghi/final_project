@@ -7,6 +7,7 @@ import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersDto;
 import com.example.finalproject_phase2.dto.specialistDto.*;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist;
+import com.example.finalproject_phase2.dto.specialistSuggestionDto.SuggestionWithSpecialistAndOrdersDto;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.ValidSpecialistSuggestionDto;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
 import com.example.finalproject_phase2.service.email.EmailRequest;
@@ -32,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/api/specialist")
@@ -149,12 +151,18 @@ public class SpecialistController {
     }
 
     @PostMapping("/changeStatusOrderToWaitingForSpecialistToWorkplace")
-    public ResponseEntity<Boolean> changeStatusOrderToWaitingForSpecialistToWorkplace(@RequestBody @Valid  StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist  statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist ) {
-        specialistSuggestionService.changeStatusOrderToWaitingForSpecialistToWorkplace(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist);
+    public ResponseEntity<Boolean> changeStatusOrderToWaitingForSpecialistToWorkplace(@RequestBody  SuggestionWithSpecialistAndOrdersDto specialistAndOrdersDto ) {
+        dtoValidation.isValid(specialistAndOrdersDto);
+        Optional<Orders> order = ordersService.findById(specialistAndOrdersDto.getOrderId());
+        Specialist specialist = specialistService.findByEmail(specialistAndOrdersDto.getSpecialistEmail());
+        if (order.isPresent()) {
+            specialistSuggestionService.changeStatusOrderToWaitingForSpecialistToWorkplace(order.get(),specialist);
+        }else throw new CustomException("order not found with this id");
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/changePassword")
-    public ResponseEntity<Boolean> changePassword(@RequestBody @Valid  SpecialistChangePasswordDto specialistChangePasswordDto) {
+    public ResponseEntity<Boolean> changePassword(@RequestBody   SpecialistChangePasswordDto specialistChangePasswordDto) {
+       dtoValidation.isValid(specialistChangePasswordDto);
         if (specialistService.changePassword(specialistChangePasswordDto.getEmail(), specialistChangePasswordDto.getNewPassword())) {
             return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
         } else throw new CustomNoResultException("password not changed");
@@ -163,7 +171,6 @@ public class SpecialistController {
 
     @PostMapping("/email/send")
     public ResponseEntity <Map<String,String>> sendEmail(@RequestBody EmailRequest emailRequest) {
-
         mailService.sendEmail(emailRequest.getTo(), emailRequest.getSubject(), emailRequest.getText());
         Map<String, String> response = new HashMap<>();
         response.put("message", "Email sent successfully!");

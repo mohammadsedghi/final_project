@@ -18,7 +18,7 @@ public interface SpecialistSuggestionService {
     Boolean IsValidSpecialSuggestion(ValidSpecialistSuggestionDto validSpecialistSuggestionDto);
     List<SpecialistSuggestionResult> findCustomerOrderSuggestionOnPrice(CustomerDtoEmail customerDtoEmail);
     List<SpecialistSuggestionResult> findCustomerOrderSuggestionOnScoreOfSpecialist(CustomerDtoEmail customerDtoEmail);
-    Boolean changeStatusOrderToWaitingForSpecialistToWorkplace(StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist);
+    Boolean changeStatusOrderToWaitingForSpecialistToWorkplace( Orders order,Specialist specialist);
     SpecialistSelectionOfOrder changeSpecialistSelectedOfOrder(SpecialistSelectionOfOrder specialistSelectionOfOrder);
     Boolean changeStatusOrderToStarted(StatusOrderSpecialistSuggestionDto statusOrderSpecialistSuggestionDto);
     Boolean changeStatusOrderToDone(OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus);

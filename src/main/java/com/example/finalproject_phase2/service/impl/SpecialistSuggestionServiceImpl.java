@@ -104,7 +104,6 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
                 specialistSuggestionDto.getDateOfStartWork(),
                 specialistSuggestionDto.getDurationOfWorkPerHour())));
         return results;
-   // return new ArrayList<>(specialistSuggestionDtoCollection);
     }
     @Override
     public List<SpecialistSuggestionResult> findCustomerOrderSuggestionOnScoreOfSpecialist(CustomerDtoEmail customerDtoEmail) {
@@ -123,10 +122,10 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
         return results;
     }
     @Override
-    public Boolean changeStatusOrderToWaitingForSpecialistToWorkplace(StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist) {
-        statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.getOrders().setSpecialist(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.getSpecialist());
+    public Boolean changeStatusOrderToWaitingForSpecialistToWorkplace(Orders order,Specialist specialist) {
+        order.setSpecialist(specialist);
         OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus = new OrdersDtoWithOrdersStatus();
-        ordersDtoWithOrdersStatus.setOrdersId(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.getOrders().getId());
+        ordersDtoWithOrdersStatus.setOrdersId(order.getId());
         ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_WAITING_FOR_SPECIALIST_TO_WORKPLACE);
         ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus);
         return true;
