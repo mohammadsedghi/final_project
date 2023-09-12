@@ -1,9 +1,7 @@
 package com.example.finalproject_phase2.service.impl;
 
 import com.example.finalproject_phase2.custom_exception.CustomException;
-import com.example.finalproject_phase2.dto.customerDto.CustomerDto;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
-import com.example.finalproject_phase2.dto.ordersDto.OrdersDto;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersDtoWithOrdersStatus;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistScoreDto;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.*;
@@ -17,7 +15,7 @@ import com.example.finalproject_phase2.service.SpecialistSuggestionService;
 import com.example.finalproject_phase2.mapper.CustomerMapper;
 import com.example.finalproject_phase2.mapper.OrdersMapper;
 import com.example.finalproject_phase2.mapper.SpecialistSuggestionMapper;
-import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
 import com.example.finalproject_phase2.util.validation.CalenderAndValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -132,8 +130,11 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
     }
 
     @Override
-    public SpecialistSelectionOfOrder changeSpecialistSelectedOfOrder(SpecialistSelectionOfOrder specialistSelectionOfOrder) {
-        return specialistSelectionOfOrder;
+    public SpecialistSelectionOfOrder changeSpecialistSelectedOfOrder( SuggestionStatusAndIdDto suggestionStatusAndIdDto) {
+        SpecialistSuggestion suggestion = findById(suggestionStatusAndIdDto.getId());
+        suggestion.setSpecialistSelectionOfOrder(suggestionStatusAndIdDto.getSpecialistSelectionOfOrder());
+        specialistSuggestionRepository.save(suggestion);
+        return suggestionStatusAndIdDto.getSpecialistSelectionOfOrder();
     }
 
     @Override

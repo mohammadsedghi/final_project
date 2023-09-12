@@ -10,7 +10,7 @@ import com.example.finalproject_phase2.entity.Admin;
 import com.example.finalproject_phase2.repository.AdminRepository;
 import com.example.finalproject_phase2.service.AdminService;
 import com.example.finalproject_phase2.mapper.AdminMapper;
-import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
 import com.example.finalproject_phase2.util.hash_password.EncryptPassword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;

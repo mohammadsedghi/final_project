@@ -2,7 +2,6 @@ package com.example.finalproject_phase2.controller;
 
 import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.ordersDto.*;
-import com.example.finalproject_phase2.dto.specialistSuggestionDto.SpecialistSuggestionDto;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.SpecialistSuggestionIdDto;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.SpecialistSuggestionResult;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.StatusOrderSpecialistSuggestionDto;
@@ -23,8 +22,8 @@ import com.example.finalproject_phase2.mapper.OrdersMapper;
 import com.example.finalproject_phase2.service.captcha.CaptchaService;
 import com.example.finalproject_phase2.service.email.EmailRequest;
 import com.example.finalproject_phase2.service.email.MailService;
-import com.example.finalproject_phase2.util.CheckValidation;
-import com.example.finalproject_phase2.util.CustomRegex;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CustomRegex;
 import com.example.finalproject_phase2.util.validation.DtoValidation;
 import com.example.finalproject_phase2.util.validation.PaymentValidation;
 import jakarta.servlet.http.HttpServletRequest;

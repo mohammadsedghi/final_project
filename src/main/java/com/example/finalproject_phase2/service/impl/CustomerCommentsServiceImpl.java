@@ -11,7 +11,7 @@ import com.example.finalproject_phase2.service.CustomerCommentsService;
 import com.example.finalproject_phase2.service.OrdersService;
 import com.example.finalproject_phase2.service.SpecialistService;
 import com.example.finalproject_phase2.mapper.CustomerCommentsMapper;
-import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

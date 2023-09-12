@@ -6,7 +6,7 @@ import com.example.finalproject_phase2.entity.Specialist;
 import com.example.finalproject_phase2.service.AdminService;
 import com.example.finalproject_phase2.service.CustomerService;
 import com.example.finalproject_phase2.service.SpecialistService;
-import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

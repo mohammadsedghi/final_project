@@ -2,7 +2,6 @@ package com.example.finalproject_phase2.service.impl;
 
 import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.custom_exception.CustomNumberFormatException;
-import com.example.finalproject_phase2.dto.dutyDto.DutyDto;
 import com.example.finalproject_phase2.dto.dutyDto.DutyNameDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDtoDescription;
@@ -15,14 +14,13 @@ import com.example.finalproject_phase2.service.DutyService;
 import com.example.finalproject_phase2.service.SubDutyService;
 import com.example.finalproject_phase2.mapper.DutyMapper;
 import com.example.finalproject_phase2.mapper.SubDutyMapper;
-import com.example.finalproject_phase2.util.CheckValidation;
-import com.example.finalproject_phase2.util.CustomRegex;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CustomRegex;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 

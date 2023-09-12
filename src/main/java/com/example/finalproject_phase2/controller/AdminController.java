@@ -1,14 +1,10 @@
 package com.example.finalproject_phase2.controller;
 
-import com.example.finalproject_phase2.custom_exception.CustomNumberFormatException;
-import com.example.finalproject_phase2.dto.customerDto.CustomerDto;
-import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.customerDto.CustomerResult;
 import com.example.finalproject_phase2.dto.customerDto.CustomerSearchDto;
 import com.example.finalproject_phase2.dto.dutyDto.DutyNameDto;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersAdvanceSearchParameter;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersResult;
-import com.example.finalproject_phase2.dto.specialistDto.SpecialistDto;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistEmailDto;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistResult;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistSearchDto;
@@ -25,10 +21,8 @@ import com.example.finalproject_phase2.service.*;
 import com.example.finalproject_phase2.mapper.AdminMapper;
 import com.example.finalproject_phase2.mapper.DutyMapper;
 import com.example.finalproject_phase2.mapper.SubDutyMapper;
-import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
 import com.example.finalproject_phase2.util.validation.DtoValidation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

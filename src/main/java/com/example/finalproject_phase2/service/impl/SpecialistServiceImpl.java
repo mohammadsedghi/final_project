@@ -15,7 +15,7 @@ import com.example.finalproject_phase2.service.*;
 import com.example.finalproject_phase2.mapper.SpecialistMapper;
 import com.example.finalproject_phase2.service.email.EmailRequest;
 import com.example.finalproject_phase2.service.email.MailService;
-import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
 import com.example.finalproject_phase2.entity.enumeration.SpecialistRegisterStatus;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

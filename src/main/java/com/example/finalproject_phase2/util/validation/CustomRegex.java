@@ -1,4 +1,4 @@
-package com.example.finalproject_phase2.util;
+package com.example.finalproject_phase2.util.validation;
 
 import lombok.Getter;
 import lombok.Setter;

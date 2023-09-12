@@ -7,6 +7,7 @@ import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersDto;
 import com.example.finalproject_phase2.dto.specialistDto.*;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist;
+import com.example.finalproject_phase2.dto.specialistSuggestionDto.SuggestionStatusAndIdDto;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.SuggestionWithSpecialistAndOrdersDto;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.ValidSpecialistSuggestionDto;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
@@ -19,7 +20,7 @@ import com.example.finalproject_phase2.service.*;
 import com.example.finalproject_phase2.mapper.OrdersMapper;
 import com.example.finalproject_phase2.mapper.SpecialistMapper;
 import com.example.finalproject_phase2.service.email.MailService;
-import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
 import com.example.finalproject_phase2.util.validation.DtoValidation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,8 +146,9 @@ public class SpecialistController {
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/changeSpecialistSelectedOfOrder")
-    public ResponseEntity<SpecialistSelectionOfOrder> changeSpecialistSelectedOfOrder(@RequestBody @Valid SpecialistSelectionOfOrder specialistSelectionOfOrder  ) {
-        SpecialistSelectionOfOrder specialistSelectionOfOrderCandidate = specialistSuggestionService.changeSpecialistSelectedOfOrder(specialistSelectionOfOrder);
+    public ResponseEntity<SpecialistSelectionOfOrder> changeSpecialistSelectedOfOrder(@RequestBody SuggestionStatusAndIdDto suggestionStatusAndIdDto  ) {
+       dtoValidation.isValid(suggestionStatusAndIdDto);
+        SpecialistSelectionOfOrder specialistSelectionOfOrderCandidate = specialistSuggestionService.changeSpecialistSelectedOfOrder(suggestionStatusAndIdDto);
         return new ResponseEntity<>(specialistSelectionOfOrderCandidate, HttpStatus.ACCEPTED);
     }
 

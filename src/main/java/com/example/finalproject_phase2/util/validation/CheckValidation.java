@@ -1,4 +1,4 @@
-package com.example.finalproject_phase2.util;
+package com.example.finalproject_phase2.util.validation;
 
 import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.entity.Admin;

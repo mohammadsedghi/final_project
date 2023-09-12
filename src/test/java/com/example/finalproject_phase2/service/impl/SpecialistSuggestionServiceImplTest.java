@@ -105,8 +105,8 @@ assertEquals(5,result.get(0).getScore());
    @Test
     void changeSpecialistSelectedOfOrder(){
        SpecialistSuggestion specialistSuggestion = specialistSuggestionService.findById(2l);
-       specialistSuggestion.setSpecialistSelectionOfOrder( specialistSuggestionService.changeSpecialistSelectedOfOrder(SpecialistSelectionOfOrder.SELECTED));
-        specialistSuggestionService.submitSpecialistSuggestion(specialistSuggestion);
+       SuggestionStatusAndIdDto  suggestionStatusAndIdDto=new SuggestionStatusAndIdDto(SpecialistSelectionOfOrder.SELECTED,specialistSuggestion.getId());
+       specialistSuggestionService.submitSpecialistSuggestion(specialistSuggestion);
    }
    @Test
     void changeStatusOrderToStarted(){

@@ -6,7 +6,7 @@ import com.example.finalproject_phase2.entity.Duty;
 import com.example.finalproject_phase2.repository.DutyRepository;
 import com.example.finalproject_phase2.service.DutyService;
 import com.example.finalproject_phase2.mapper.DutyMapper;
-import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.CheckValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
