@@ -15,6 +15,7 @@ import com.example.finalproject_phase2.service.SpecialistSuggestionService;
 import com.example.finalproject_phase2.mapper.CustomerMapper;
 import com.example.finalproject_phase2.mapper.OrdersMapper;
 import com.example.finalproject_phase2.mapper.SpecialistSuggestionMapper;
+import com.example.finalproject_phase2.service.SubDutyService;
 import com.example.finalproject_phase2.util.validation.CheckValidation;
 import com.example.finalproject_phase2.util.validation.CalenderAndValidation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,44 +36,49 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
     private final SpecialistService specialistService;
     private final OrdersMapper ordersMapper;
     private final SpecialistSuggestionMapper specialistSuggestionMapper;
+    private final SubDutyService subDutyService;
     CalenderAndValidation calenderAndValidation = new CalenderAndValidation();
     CheckValidation checkValidation = new CheckValidation();
 
     @Autowired
-    public SpecialistSuggestionServiceImpl(SpecialistSuggestionRepository specialistSuggestionRepository, OrdersService ordersService, CustomerMapper customerMapper, SpecialistService specialistService, OrdersMapper ordersMapper, SpecialistSuggestionMapper specialistSuggestionMapper) {
+    public SpecialistSuggestionServiceImpl(SpecialistSuggestionRepository specialistSuggestionRepository, OrdersService ordersService, CustomerMapper customerMapper, SpecialistService specialistService, OrdersMapper ordersMapper, SpecialistSuggestionMapper specialistSuggestionMapper, SubDutyService subDutyService) {
         this.specialistSuggestionRepository = specialistSuggestionRepository;
         this.ordersService = ordersService;
         this.customerMapper = customerMapper;
         this.specialistService = specialistService;
         this.ordersMapper = ordersMapper;
         this.specialistSuggestionMapper = specialistSuggestionMapper;
+        this.subDutyService = subDutyService;
     }
 
     @Override
-    public Boolean IsValidSpecialSuggestion(ValidSpecialistSuggestionDto validSpecialistSuggestionDto){
+    public Boolean IsValidSpecialSuggestion(SuggestionDto suggestionDto){
         try {
-            StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist=new StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist();
-            statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.setSpecialist(validSpecialistSuggestionDto.getSpecialist());
-            statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.setOrders(validSpecialistSuggestionDto.getOrders());
-            if (!findSuggestWithThisSpecialistAndOrder(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist)) {
+            Specialist specialist = specialistService.findByEmail(suggestionDto.getSpecialistEmail());
+            Optional<Orders> order = ordersService.findById(suggestionDto.getOrdersId());
+            SubDuty subDuty = subDutyService.findByNames(suggestionDto.getSubDutyName());
+            SuggestionWithSpecialistAndOrdersDto specialistAndOrdersDto=new SuggestionWithSpecialistAndOrdersDto();
+            specialistAndOrdersDto.setSpecialistEmail(suggestionDto.getSpecialistEmail());
+            specialistAndOrdersDto.setOrderId(suggestionDto.getOrdersId());
+            if (!findSuggestWithThisSpecialistAndOrder(specialistAndOrdersDto)) {
                 throw new CustomException("duplicate request for suggest");
             }
-            if (!calenderAndValidation.setAndConvertDate(validSpecialistSuggestionDto.getOrders().getDateOfWork(),
-                    validSpecialistSuggestionDto.getDay(), validSpecialistSuggestionDto.getMonth(), validSpecialistSuggestionDto.getYear(), validSpecialistSuggestionDto.getOrders().getTimeOfWork(), validSpecialistSuggestionDto.getHour(), validSpecialistSuggestionDto.getMinutes())) {
+            if (!calenderAndValidation.setAndConvertDate(order.get().getDateOfWork(),
+                    suggestionDto.getDay(), suggestionDto.getMonth(), suggestionDto.getYear(), order.get().getTimeOfWork(), suggestionDto.getHour(), suggestionDto.getMinutes())) {
                 throw new CustomException("order time of work is not valid");
             }
             OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus = new OrdersDtoWithOrdersStatus();
-            ordersDtoWithOrdersStatus.setOrdersId(validSpecialistSuggestionDto.getOrders().getId());
+            ordersDtoWithOrdersStatus.setOrdersId(suggestionDto.getOrdersId());
             ordersDtoWithOrdersStatus.setOrderStatus(OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
             SpecialistSuggestion specialistSuggestion = SpecialistSuggestion.builder()
-                    .specialist(validSpecialistSuggestionDto.getSpecialist())
+                    .specialist(specialist)
                     .order(ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus))
                     .DateOfSuggestion(LocalDate.now())
                     .TimeOfSuggestion(LocalTime.now())
-                    .TimeOfStartWork(LocalTime.of(validSpecialistSuggestionDto.getHour(), validSpecialistSuggestionDto.getMinutes(), 0))
-                    .DateOfStartWork(LocalDate.of(validSpecialistSuggestionDto.getYear(), validSpecialistSuggestionDto.getMonth(), validSpecialistSuggestionDto.getDay()))
-                    .durationOfWorkPerHour(validSpecialistSuggestionDto.getWorkTimePerHour())
-                    .proposedPrice(validSpecialistSuggestionDto.getSubDuty().getBasePrice() + validSpecialistSuggestionDto.getProposedPrice())
+                    .TimeOfStartWork(LocalTime.of(suggestionDto.getHour(), suggestionDto.getMinutes(), 0))
+                    .DateOfStartWork(LocalDate.of(suggestionDto.getYear(), suggestionDto.getMonth(), suggestionDto.getDay()))
+                    .durationOfWorkPerHour(suggestionDto.getWorkTimePerHour())
+                    .proposedPrice(subDuty.getBasePrice() + suggestionDto.getProposedPrice())
                     .build();
             return submitSpecialistSuggestion(specialistSuggestion);
         } catch (CustomException ce) {
@@ -218,9 +224,10 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
 
 
     @Override
-    public Boolean findSuggestWithThisSpecialistAndOrder(StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist) {
-        return specialistSuggestionRepository.findSuggestWithThisSpecialistAndOrder(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.getSpecialist(),
-                statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.getOrders()).isEmpty();
+    public Boolean findSuggestWithThisSpecialistAndOrder( SuggestionWithSpecialistAndOrdersDto specialistAndOrdersDto) {
+        Optional<Orders> order = ordersService.findById(specialistAndOrdersDto.getOrderId());
+        Specialist specialist = specialistService.findByEmail(specialistAndOrdersDto.getSpecialistEmail());
+        return specialistSuggestionRepository.findSuggestWithThisSpecialistAndOrder(specialist, order.get()).isEmpty();
     }
 
 

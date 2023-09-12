@@ -48,31 +48,31 @@ class SpecialistSuggestionServiceImplTest {
 
     @Test
     void isValidSpecialSuggestion() {
-        ValidSpecialistSuggestionDto validSpecialistSuggestionDto=new ValidSpecialistSuggestionDto();
-        validSpecialistSuggestionDto.setSpecialist(specialistService.findByEmail("mohammad@gmail.com"));
-        validSpecialistSuggestionDto.setOrders( ordersService.findById(1l).get());
+        SuggestionDto validSpecialistSuggestionDto=new SuggestionDto();
+        validSpecialistSuggestionDto.setSpecialistEmail("mohammad@gmail.com");
+        validSpecialistSuggestionDto.setOrdersId(1l);
         validSpecialistSuggestionDto.setDay(12);
         validSpecialistSuggestionDto.setMonth(9);
         validSpecialistSuggestionDto.setYear(2023);
         validSpecialistSuggestionDto.setHour(13);
         validSpecialistSuggestionDto.setMinutes(20);
         validSpecialistSuggestionDto.setProposedPrice(140d);
-        validSpecialistSuggestionDto.setSubDuty(ordersService.findById(1l).get().getSubDuty());
+        validSpecialistSuggestionDto.setSubDutyName("CD");
         validSpecialistSuggestionDto.setWorkTimePerHour(10);
       assertEquals(true ,specialistSuggestionService.IsValidSpecialSuggestion(validSpecialistSuggestionDto));
     }
     @Test
     void inValidSpecialSuggestion() {
-        ValidSpecialistSuggestionDto validSpecialistSuggestionDto=new ValidSpecialistSuggestionDto();
-        validSpecialistSuggestionDto.setSpecialist(specialistService.findByEmail("mohammad@gmail.com"));
-        validSpecialistSuggestionDto.setOrders( ordersService.findById(1l).get());
+        SuggestionDto validSpecialistSuggestionDto=new SuggestionDto();
+        validSpecialistSuggestionDto.setSpecialistEmail("mohammad@gmail.com");
+        validSpecialistSuggestionDto.setOrdersId(1l);
         validSpecialistSuggestionDto.setDay(12);
         validSpecialistSuggestionDto.setMonth(9);
         validSpecialistSuggestionDto.setYear(2023);
         validSpecialistSuggestionDto.setHour(13);
         validSpecialistSuggestionDto.setMinutes(20);
         validSpecialistSuggestionDto.setProposedPrice(140d);
-        validSpecialistSuggestionDto.setSubDuty(ordersService.findById(1l).get().getSubDuty());
+        validSpecialistSuggestionDto.setSubDutyName("CD");
         validSpecialistSuggestionDto.setWorkTimePerHour(10);
         assertEquals("500" ,specialistSuggestionService.IsValidSpecialSuggestion(validSpecialistSuggestionDto));
     }
@@ -90,11 +90,10 @@ assertEquals(5,result.get(0).getScore());
     }
     @Test
     void findSuggestWithThisSpecialistAndOrder() {
-        StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist=new
-                StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist();
-        statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.setSpecialist(specialistService.findByEmail("ali@gmail.com"));
-        statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist.setOrders( ordersService.findById(1l).get());
-        assertTrue(specialistSuggestionService.findSuggestWithThisSpecialistAndOrder(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist));
+        SuggestionWithSpecialistAndOrdersDto specialistAndOrdersDto=new SuggestionWithSpecialistAndOrdersDto();
+        specialistAndOrdersDto.setSpecialistEmail("ali@gmail.com");
+        specialistAndOrdersDto.setOrderId(1l);
+        assertTrue(specialistSuggestionService.findSuggestWithThisSpecialistAndOrder(specialistAndOrdersDto));
 
     }
     @Test

@@ -6,10 +6,7 @@ import com.example.finalproject_phase2.custom_exception.CustomNoResultException;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersDto;
 import com.example.finalproject_phase2.dto.specialistDto.*;
-import com.example.finalproject_phase2.dto.specialistSuggestionDto.StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist;
-import com.example.finalproject_phase2.dto.specialistSuggestionDto.SuggestionStatusAndIdDto;
-import com.example.finalproject_phase2.dto.specialistSuggestionDto.SuggestionWithSpecialistAndOrdersDto;
-import com.example.finalproject_phase2.dto.specialistSuggestionDto.ValidSpecialistSuggestionDto;
+import com.example.finalproject_phase2.dto.specialistSuggestionDto.*;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
 import com.example.finalproject_phase2.service.email.EmailRequest;
 import com.example.finalproject_phase2.entity.Orders;
@@ -124,25 +121,29 @@ public class SpecialistController {
 
 
     @PostMapping("/showOrdersToSpecialist")
-    public ResponseEntity<Collection<OrdersDto>> showOrdersToSpecialist(@RequestBody @Valid SubDutyNameDto subDutyNameDto ) {
+    public ResponseEntity<Collection<OrdersDto>> showOrdersToSpecialist(@RequestBody  SubDutyNameDto subDutyNameDto ) {
+      dtoValidation.isValid(subDutyNameDto);
         Collection<Orders> ordersCollection = ordersService.showOrdersToSpecialist(subDutyNameDto);
         Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
         return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
     }
     @PostMapping("/showScore")
-    public ResponseEntity<Integer> showScore(@RequestBody @Valid SpecialistDto specialistDto ) {
-        Integer score = customerCommentsService.showScoreOfLastCustomerCommentsThatThisSpecialistIsExist(
-                specialistMapper.specialistDtoToSpecialist(specialistDto));
+    public ResponseEntity<Integer> showScore(@RequestBody SpecialistEmailDto specialistEmailDto ) {
+        dtoValidation.isValid(specialistEmailDto);
+        Specialist specialist = specialistService.findByEmail(specialistEmailDto.getEmail());
+        Integer score = customerCommentsService.showScoreOfLastCustomerCommentsThatThisSpecialistIsExist(specialist);
         return new ResponseEntity<>(score, HttpStatus.ACCEPTED);
     }
     @PostMapping("/submitSpecialSuggestion")
-    public ResponseEntity<Boolean> IsValidSpecialSuggestion(@RequestBody @Valid ValidSpecialistSuggestionDto validSpecialistSuggestionDto) {
-        specialistSuggestionService.IsValidSpecialSuggestion(validSpecialistSuggestionDto);
+    public ResponseEntity<Boolean> IsValidSpecialSuggestion(@RequestBody SuggestionDto suggestionDto ) {
+        dtoValidation.isValid(suggestionDto);
+        specialistSuggestionService.IsValidSpecialSuggestion(suggestionDto);
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findSuggestWithThisSpecialistAndOrder")
-    public ResponseEntity<Boolean> findSuggestWithThisSpecialistAndOrder(@RequestBody @Valid StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist ) {
-        specialistSuggestionService.findSuggestWithThisSpecialistAndOrder(statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist);
+    public ResponseEntity<Boolean> findSuggestWithThisSpecialistAndOrder(@RequestBody  SuggestionWithSpecialistAndOrdersDto specialistAndOrdersDto ) {
+        dtoValidation.isValid(specialistAndOrdersDto);
+        specialistSuggestionService.findSuggestWithThisSpecialistAndOrder(specialistAndOrdersDto);
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/changeSpecialistSelectedOfOrder")

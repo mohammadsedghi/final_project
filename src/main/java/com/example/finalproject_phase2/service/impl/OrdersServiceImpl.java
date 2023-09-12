@@ -101,7 +101,8 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public Collection<Orders> showOrdersToSpecialist(SubDutyNameDto subDutyNameDtoDto) {
-        return ordersRepository.showOrdersToSpecialist(subDutyMapper.subDutyDtoToSubDuty(subDutyService.findByName(subDutyNameDtoDto.getName())), OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION, OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
+//        return ordersRepository.showOrdersToSpecialist(subDutyMapper.subDutyDtoToSubDuty(subDutyService.findByName(subDutyNameDtoDto.getName())), OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION, OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
+        return ordersRepository.showOrdersToSpecialist(subDutyService.findByNames(subDutyNameDtoDto.getName()), OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION, OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
     }
 
     @Override

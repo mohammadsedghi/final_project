@@ -14,8 +14,8 @@ import java.util.Optional;
 
 public interface SpecialistSuggestionService {
     Boolean submitSpecialistSuggestion(SpecialistSuggestion specialistSuggestion);
-    Boolean findSuggestWithThisSpecialistAndOrder(StatusOrderSpecialistSuggestionDtoWithOrderAndSpecialist statusOrderSpecialistSuggestionDtoWithOrderAndSpecialist);
-    Boolean IsValidSpecialSuggestion(ValidSpecialistSuggestionDto validSpecialistSuggestionDto);
+    Boolean findSuggestWithThisSpecialistAndOrder( SuggestionWithSpecialistAndOrdersDto specialistAndOrdersDto);
+    Boolean IsValidSpecialSuggestion(SuggestionDto suggestionDto);
     List<SpecialistSuggestionResult> findCustomerOrderSuggestionOnPrice(CustomerDtoEmail customerDtoEmail);
     List<SpecialistSuggestionResult> findCustomerOrderSuggestionOnScoreOfSpecialist(CustomerDtoEmail customerDtoEmail);
     Boolean changeStatusOrderToWaitingForSpecialistToWorkplace( Orders order,Specialist specialist);
