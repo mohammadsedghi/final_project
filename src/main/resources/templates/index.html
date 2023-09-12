@@ -98,12 +98,6 @@
                 <span class="input-group-text col-sm-4 border border-dark" id="inputGroupPrepend "><img class="img-captcha" src="/api/customer/wallet/captcha" alt="CAPTCHA Image"></span>
                 <input type="text" class="form-control col-sm-8 captcha border border-dark" id="captcha"  aria-describedby="inputGroupPrepend" required>
             </div>
-<!--            <div class="col-12 label-custom cvv2-input">-->
-<!--                <span class="input-group-text col-2" id="inputGroupPrepend">@</span>-->
-<!--                <input type="text" class="form-control col-2" id="validationCustomUsername" aria-describedby="inputGroupPrepend" required>-->
-<!--&lt;!&ndash;                <span class="input-group-text" id="inputGroupPrepend"></span>&ndash;&gt;-->
-<!--&lt;!&ndash;                <input type="text" class="form-control border border-dark"  id="captcha">&ndash;&gt;-->
-<!--            </div>-->
         </div>
         <div class="row g-2 mt-1">
             <div class="col-2 ps-5 ">
@@ -118,11 +112,7 @@
         </div>
         <div id="response"></div>
     </form>
-    <!--<form th:action="@{/payment}" method="post">-->
-    <!--    <input type="text" id="inputData" placeholder="Enter data">-->
-    <!--    <button id="sendButton">Send Data</button>-->
-    <!--    <div id="response"></div>-->
-    <!--</form>-->
+
 </div>
 <!--<script>-->
 <!--    $(document).ready(function() {-->
@@ -170,7 +160,7 @@
                     ,month:month,year:year ,captcha:captcha,password:pass},
                 success: function (response) {
                     if (response === "false") {
-                        window.location.href = '/endTime';
+                        window.location.href = '/api/customer/wallet/endTime';
                     } else if (response==="true"){
                         window.location.href = '/api/customer/wallet/after';}
                         $("#response").html(response);

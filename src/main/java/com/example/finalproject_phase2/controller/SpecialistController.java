@@ -19,6 +19,7 @@ import com.example.finalproject_phase2.mapper.OrdersMapper;
 import com.example.finalproject_phase2.mapper.SpecialistMapper;
 import com.example.finalproject_phase2.service.email.MailService;
 import com.example.finalproject_phase2.util.CheckValidation;
+import com.example.finalproject_phase2.util.validation.DtoValidation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,7 @@ public class SpecialistController {
     private final SpecialistMapper specialistMapper;
     private final MailService mailService;
     private final WalletService walletService;
+    DtoValidation dtoValidation=new DtoValidation();
 
     @Autowired
     public SpecialistController(SpecialistService specialistService, CustomerCommentsService customerCommentsService, OrdersService ordersService, SpecialistSuggestionService specialistSuggestionService, OrdersMapper ordersMapper, SpecialistMapper specialistMapper, MailService mailService, WalletService walletService) {
@@ -188,7 +190,8 @@ public class SpecialistController {
         }
     }
     @PostMapping("/wallet/ShowBalance")
-    public ResponseEntity<Double> ShowBalance(@RequestBody @Valid CustomerDtoEmail customerDtoEmail){
+    public ResponseEntity<Double> ShowBalance(@RequestBody  CustomerDtoEmail customerDtoEmail){
+      dtoValidation.isValid(customerDtoEmail);
         Specialist specialist = specialistService.findByEmail(customerDtoEmail.getEmail());
         return new ResponseEntity<>(walletService.ShowBalance(specialist.getWallet()),HttpStatus.ACCEPTED);
     }

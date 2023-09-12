@@ -15,13 +15,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class WalletServiceImpl implements WalletService {
     private final WalletRepository walletRepository;
-
     @Autowired
     public WalletServiceImpl(WalletRepository walletRepository) {
         this.walletRepository = walletRepository;
     }
-
-
     public Wallet createWallet() {
         Wallet wallet = new Wallet(0d);
         walletRepository.save(wallet);
@@ -42,14 +39,7 @@ public class WalletServiceImpl implements WalletService {
         walletRepository.save(customerWallet);
         walletRepository.save(specialistWallet);
     }
-    public void withDrawOnline( Specialist specialist,Double price) {
-        Wallet specialistWallet=specialist.getWallet();
-        Double specialistBalance = specialistWallet.getBalance();
-        Double calcCostOFOrder=(price*70)/100;
-        specialistBalance=specialistBalance+calcCostOFOrder;
-        specialistWallet.setBalance(specialistBalance);
-        walletRepository.save(specialistWallet);
-    }
+
 
     @Override
     public String payWithWallet(SpecialistSuggestion specialistSuggestion) {
@@ -75,6 +65,14 @@ public class WalletServiceImpl implements WalletService {
         }catch (CustomException ce){
             throw new CustomException("transaction is failed");
         }
+    }
+    public void withDrawOnline( Specialist specialist,Double price) {
+        Wallet specialistWallet=specialist.getWallet();
+        Double specialistBalance = specialistWallet.getBalance();
+        Double calcCostOFOrder=(price*70)/100;
+        specialistBalance=specialistBalance+calcCostOFOrder;
+        specialistWallet.setBalance(specialistBalance);
+        walletRepository.save(specialistWallet);
     }
     @Override
     public Double ShowBalance(Wallet wallet){

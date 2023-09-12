@@ -26,6 +26,7 @@ import com.example.finalproject_phase2.service.email.MailService;
 import com.example.finalproject_phase2.util.CheckValidation;
 import com.example.finalproject_phase2.util.CustomRegex;
 import com.example.finalproject_phase2.util.validation.DtoValidation;
+import com.example.finalproject_phase2.util.validation.PaymentValidation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -65,6 +66,9 @@ public class CustomerController {
     private final SpecialistService specialistService;
     CaptchaService captchaService=new CaptchaService();
 DtoValidation dtoValidation=new DtoValidation();
+PaymentValidation paymentValidation=new PaymentValidation();
+private Specialist specialist;
+private Double proposedPrice;
 
     @Autowired
     public CustomerController(CustomerService customerService, CustomerMapper customerMapper, AddressService addressService, CustomerCommentsService customerCommentsService, MailService mailService, AddressMapper addressMapper, OrdersService ordersService, SpecialistSuggestionService specialistSuggestionService, OrdersMapper ordersMapper, WalletService walletService, SpecialistService specialistService) {
@@ -232,7 +236,13 @@ DtoValidation dtoValidation=new DtoValidation();
         List<SpecialistSuggestionResult> customerOrderSuggestionOnPrice = specialistSuggestionService.findCustomerOrderSuggestionOnPrice(customerDtoEmail);
         return new ResponseEntity<>(customerOrderSuggestionOnPrice, HttpStatus.ACCEPTED);
     }
-
+@PostMapping("/wallet/selectSpecialistSuggestion")
+public String selectSpecialistSuggestion(@RequestBody SpecialistSuggestionIdDto specialistSuggestionIdDto){
+    SpecialistSuggestion suggestion = specialistSuggestionService.findById(specialistSuggestionIdDto.getId());
+     specialist=suggestion.getSpecialist();
+     proposedPrice=suggestion.getProposedPrice();
+     return payment();
+    }
     @RequestMapping(value = "/wallet/payment", method = RequestMethod.GET)
     public String payment() {
         localTime=LocalTime.now();
@@ -247,32 +257,14 @@ DtoValidation dtoValidation=new DtoValidation();
                            @RequestParam String month, @RequestParam String year,
                            @RequestParam String captcha, @RequestParam String password,
                            Model model) {
-        String response;
-        if (customRegex.checkOneInputIsValid(cardNumber1,customRegex.getValidDigitCardNumberPartOne())){
-            if (customRegex.checkOneInputIsValid(cardNumber2,customRegex.getValidCardNumber())){
-                if (customRegex.checkOneInputIsValid(cardNumber3,customRegex.getValidCardNumber())){
-                    if ( customRegex.checkOneInputIsValid(cardNumber4,customRegex.getValidCardNumber())){
-                        if (customRegex.checkOneInputIsValid(cvv2,customRegex.getValidCardNumber())){
-                            if (customRegex.checkOneInputIsValid(month,customRegex.getValidCardNumberMonth())){
-                                if (customRegex.checkOneInputIsValid(year,customRegex.getValidCardNumberYear())){
-                                    if (captchaText.equals(captcha)){
-                                        if (password.equals("1234")){
-                                            response="true";
-                                        }else response="password is incorrect";
-                                    }else response="captcha is incorrect";
-                                }else response="year of date is incorrect";
-                            }else response="month of date is incorrect";
-                        }else response="cvv2 is incorrect";
-                    }else response="cardNumber is incorrect";
-                }else response="cardNumber is incorrect";
-            }else response="cardNumber is incorrect";
-        }else response="cardNumber is incorrect";
+        String response="";
+        response=paymentValidation.isValidCard(cardNumber1,cardNumber2,cardNumber3,cardNumber4
+        ,cvv2,month,year,captchaText,captcha,password);
         if (LocalTime.now().getMinute()-localTime.getMinute()>=5){
             response="false";
         }
         if (response.equals("true")){
-            Specialist specialist = specialistService.findByEmail("ali@gmail.com");
-            walletService.payWithOnlinePayment(specialist,100d);
+            walletService.payWithOnlinePayment(specialist,proposedPrice);
         }
         model.addAttribute("response", response);
         return response;
@@ -336,12 +328,14 @@ DtoValidation dtoValidation=new DtoValidation();
     }
     @PostMapping("/wallet/ShowBalance")
     public ResponseEntity<Double> ShowBalance(@RequestBody @Valid CustomerDtoEmail customerDtoEmail){
+        dtoValidation.isValid(customerDtoEmail);
         Optional<Customer> customer = customerService.findByEmail(customerDtoEmail.getEmail());
        return new ResponseEntity<>(walletService.ShowBalance(customer.get().getWallet()),HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/history/orders")
     public ResponseEntity<Map<OrderStatus,List<OrdersResult>>> showHistoryOrders(@RequestBody  CustomerDtoEmail customerDtoEmail){
+        dtoValidation.isValid(customerDtoEmail);
         return new ResponseEntity<>(ordersService.showHistoryOrders(customerDtoEmail),HttpStatus.ACCEPTED);
     }
 
