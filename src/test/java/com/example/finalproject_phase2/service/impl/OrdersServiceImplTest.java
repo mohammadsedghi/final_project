@@ -60,8 +60,8 @@ class OrdersServiceImplTest {
                 .description("order")
                 .address(addressMapper.addressDtoToAddress(motherObject.getValidAddressDto()))
                 .proposedPrice("12")
-                .year(2024).month(12).day(1)
-                .timeOfWork("20-12-10")
+                .dateOfWork(LocalDate.now())
+                .timeOfWork(LocalTime.now())
                 .build();
 
         ordersService.submitOrder(order);
@@ -91,8 +91,8 @@ class OrdersServiceImplTest {
     @Order(4)
     void findOrdersWithThisCustomerAndSubDuty() {
         OrdersDtoWithCustomerAndSubDuty ordersDtoWithCustomerAndSubDuty=new OrdersDtoWithCustomerAndSubDuty();
-        ordersDtoWithCustomerAndSubDuty.setCustomer(customerService.findByEmail("mahan@gmail.com").get());
-        ordersDtoWithCustomerAndSubDuty.setSubDuty(subDutyMapper.subDutyDtoToSubDuty(subDutyService.findByName("CD")));
+        ordersDtoWithCustomerAndSubDuty.setCustomerEmail("mahan@gmail.com");
+        ordersDtoWithCustomerAndSubDuty.setSubDutyName("CD");
         OrdersDto orderDto = ordersService.findOrdersWithThisCustomerAndSubDuty(ordersDtoWithCustomerAndSubDuty);
         assertEquals(orderDto,ordersService.findOrdersWithThisCustomerAndSubDuty(ordersDtoWithCustomerAndSubDuty));
     }

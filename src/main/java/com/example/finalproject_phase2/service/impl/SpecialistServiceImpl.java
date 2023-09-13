@@ -135,18 +135,21 @@ private String token;
     }
     @Override
     public AuthenticationResponse authenticate(SpecialistLoginDto specialistLoginDto){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                      specialistMapper.specialistLoginDtoToSpecialistLogin(specialistLoginDto)
-                              .getEmail(),specialistMapper.specialistLoginDtoToSpecialistLogin(specialistLoginDto).getPassword()
-                )
-        );
-        Specialist specialist=specialistRepository.findByEmail(specialistMapper.specialistLoginDtoToSpecialistLogin(specialistLoginDto).getEmail()).orElseThrow();
-        CheckValidation.memberTypespecialist = specialist;
-        String jwtToken=jwtService.generateToken(customUserDetailsService.loadUserByUsername(specialist.getEmail()));
-        return  AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+       try {
+           authenticationManager.authenticate(
+                   new UsernamePasswordAuthenticationToken(
+                           specialistMapper.specialistLoginDtoToSpecialistLogin(specialistLoginDto)
+                                   .getEmail(), specialistMapper.specialistLoginDtoToSpecialistLogin(specialistLoginDto).getPassword()
+                   )
+           );
+           Specialist specialist = specialistRepository.findByEmail(specialistMapper.specialistLoginDtoToSpecialistLogin(specialistLoginDto).getEmail()).orElseThrow();
+           CheckValidation.memberTypespecialist = specialist;
+           String jwtToken = jwtService.generateToken(customUserDetailsService.loadUserByUsername(specialist.getEmail()));
+           return  AuthenticationResponse.builder()
+                   .token(jwtToken)
+                   .build();
+       }catch (CustomException ce){throw new CustomException("authenticate of this member have error "+ ce.getMessage());}
+
     }
 
 
@@ -294,9 +297,6 @@ private String token;
             return specialistList;
 
     }
-
-
-
     @Override
     public boolean changePassword(String email, String newPassword){
         Specialist user = specialistRepository.findByEmail(email).
@@ -305,5 +305,10 @@ private String token;
         user.setPassword(encodedPassword);
         specialistRepository.save(user);
         return true;
+    }
+    @Override
+     public boolean isConfirm(){
+   if(CheckValidation.memberTypespecialist.getStatus() == SpecialistRegisterStatus.CONFIRM)return true;
+   else throw new CustomException("can not permission to this method please wait that admin confirm");
     }
 }

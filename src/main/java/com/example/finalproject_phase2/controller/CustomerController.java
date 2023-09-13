@@ -134,11 +134,12 @@ private Double proposedPrice;
             throw new CustomException("address not saved");
     }
     @PostMapping("/submitOrders")
-    public ResponseEntity<OrdersDto> submitOrders(@RequestBody  SubmitOrderDto submitOrderDto) {
+    public ResponseEntity<OrdersResult> submitOrders(@RequestBody  SubmitOrderDto submitOrderDto) {
+        dtoValidation.isValid(submitOrderDto);
         OrdersDto ordersDto = ordersService.submitOrder(submitOrderDto);
-        if (ordersDto!=null){
-            return new ResponseEntity<>(ordersDto, HttpStatus.ACCEPTED);
-        }else  throw new CustomException("orders not saved");
+        OrdersResult ordersResult=new OrdersResult(ordersDto.getSpecialist().getLastName()
+        ,ordersDto.getCustomer().getLastName(),ordersDto.getDateOfWork(),ordersDto.getProposedPrice());
+        return new ResponseEntity<>(ordersResult, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersWithThisCustomerAndSubDuty")
     public ResponseEntity<OrdersDto> findOrdersWithThisCustomerAndSubDuty(@RequestBody OrdersDtoWithCustomerAndSubDuty ordersDtoWithCustomerAndSubDuty ) {

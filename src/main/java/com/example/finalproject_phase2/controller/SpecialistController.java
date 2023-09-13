@@ -73,6 +73,7 @@ public class SpecialistController {
     @PostMapping("/authentication")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody SpecialistLoginDto specialistLoginDto
             , @RequestParam String userType){
+        dtoValidation.isValid(specialistLoginDto);
         CheckValidation.userType=userType;
         System.out.println(userType);
         if (userType.equals("specialist")){
@@ -80,13 +81,15 @@ public class SpecialistController {
         }else  return new ResponseEntity<>(new AuthenticationResponse(), HttpStatus.BAD_REQUEST);
     }
     @PostMapping("/updateScore")
-    public ResponseEntity<Integer> updateScore(@RequestBody @Valid SpecialistScoreDto specialistScoreDto) {
+    public ResponseEntity<Integer> updateScore(@RequestBody  SpecialistScoreDto specialistScoreDto) {
+        specialistService.isConfirm();
         Integer score  = specialistService.updateSpecialistScore(specialistScoreDto);
         if (score!=null)return new ResponseEntity<>(score, HttpStatus.ACCEPTED);
         else throw new CustomException("score has not been updated");
     }
     @PostMapping("/showImage")
-    public ResponseEntity<String> showImage(@RequestBody @Valid ConvertImageDto convertImageDto) {
+    public ResponseEntity<String> showImage(@RequestBody  ConvertImageDto convertImageDto) {
+        specialistService.isConfirm();
         try {
             specialistService.convertByteArrayToImage(convertImageDto);
             return new ResponseEntity<>("image is converted", HttpStatus.ACCEPTED);
@@ -96,7 +99,8 @@ public class SpecialistController {
     }
     //src/main/java/com/example/finalproject_phase2/util/images/300.jpg
     @PostMapping("/setImage")
-    public ResponseEntity<String> setImage(@RequestBody @Valid SpecialistImageDto specialistImageDto) {
+    public ResponseEntity<String> setImage(@RequestBody  SpecialistImageDto specialistImageDto) {
+        specialistService.isConfirm();
         try {
             specialistService.convertImageToImageData(specialistImageDto);
             return new ResponseEntity<>("image is converted", HttpStatus.ACCEPTED);
@@ -108,13 +112,15 @@ public class SpecialistController {
 
     @PostMapping("/showOrdersToSpecialist")
     public ResponseEntity<Collection<OrdersDto>> showOrdersToSpecialist(@RequestBody  SubDutyNameDto subDutyNameDto ) {
-      dtoValidation.isValid(subDutyNameDto);
+        specialistService.isConfirm();
+        dtoValidation.isValid(subDutyNameDto);
         Collection<Orders> ordersCollection = ordersService.showOrdersToSpecialist(subDutyNameDto);
         Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
         return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
     }
     @PostMapping("/showScore")
     public ResponseEntity<Integer> showScore(@RequestBody SpecialistEmailDto specialistEmailDto ) {
+        specialistService.isConfirm();
         dtoValidation.isValid(specialistEmailDto);
         Specialist specialist = specialistService.findByEmail(specialistEmailDto.getEmail());
         Integer score = customerCommentsService.showScoreOfLastCustomerCommentsThatThisSpecialistIsExist(specialist);
@@ -122,18 +128,21 @@ public class SpecialistController {
     }
     @PostMapping("/submitSpecialSuggestion")
     public ResponseEntity<Boolean> IsValidSpecialSuggestion(@RequestBody SuggestionDto suggestionDto ) {
+        specialistService.isConfirm();
         dtoValidation.isValid(suggestionDto);
         specialistSuggestionService.IsValidSpecialSuggestion(suggestionDto);
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findSuggestWithThisSpecialistAndOrder")
     public ResponseEntity<Boolean> findSuggestWithThisSpecialistAndOrder(@RequestBody  SuggestionWithSpecialistAndOrdersDto specialistAndOrdersDto ) {
+        specialistService.isConfirm();
         dtoValidation.isValid(specialistAndOrdersDto);
         specialistSuggestionService.findSuggestWithThisSpecialistAndOrder(specialistAndOrdersDto);
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/changeSpecialistSelectedOfOrder")
     public ResponseEntity<SpecialistSelectionOfOrder> changeSpecialistSelectedOfOrder(@RequestBody SuggestionStatusAndIdDto suggestionStatusAndIdDto  ) {
+        specialistService.isConfirm();
        dtoValidation.isValid(suggestionStatusAndIdDto);
         SpecialistSelectionOfOrder specialistSelectionOfOrderCandidate = specialistSuggestionService.changeSpecialistSelectedOfOrder(suggestionStatusAndIdDto);
         return new ResponseEntity<>(specialistSelectionOfOrderCandidate, HttpStatus.ACCEPTED);
@@ -141,6 +150,7 @@ public class SpecialistController {
 
     @PostMapping("/changeStatusOrderToWaitingForSpecialistToWorkplace")
     public ResponseEntity<Boolean> changeStatusOrderToWaitingForSpecialistToWorkplace(@RequestBody  SuggestionWithSpecialistAndOrdersDto specialistAndOrdersDto ) {
+        specialistService.isConfirm();
         dtoValidation.isValid(specialistAndOrdersDto);
         Optional<Orders> order = ordersService.findById(specialistAndOrdersDto.getOrderId());
         Specialist specialist = specialistService.findByEmail(specialistAndOrdersDto.getSpecialistEmail());
@@ -151,11 +161,11 @@ public class SpecialistController {
     }
     @PostMapping("/changePassword")
     public ResponseEntity<Boolean> changePassword(@RequestBody   SpecialistChangePasswordDto specialistChangePasswordDto) {
+      specialistService.isConfirm();
        dtoValidation.isValid(specialistChangePasswordDto);
         if (specialistService.changePassword(specialistChangePasswordDto.getEmail(), specialistChangePasswordDto.getNewPassword())) {
             return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
         } else throw new CustomNoResultException("password not changed");
-
     }
 
     @PostMapping("/email/send")
@@ -187,12 +197,14 @@ public class SpecialistController {
     }
     @PostMapping("/wallet/ShowBalance")
     public ResponseEntity<Double> ShowBalance(@RequestBody  CustomerDtoEmail customerDtoEmail){
+        specialistService.isConfirm();
       dtoValidation.isValid(customerDtoEmail);
         Specialist specialist = specialistService.findByEmail(customerDtoEmail.getEmail());
         return new ResponseEntity<>(walletService.ShowBalance(specialist.getWallet()),HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersInStatusWaitingForSpecialistSuggestionForSpecialist")
     public ResponseEntity<List<OrdersResult>> findOrdersInStatus(@RequestBody  SpecialistEmailAndOrderStatusDto specialistEmailAndOrderStatusDto ) {
+        specialistService.isConfirm();
         dtoValidation.isValid(specialistEmailAndOrderStatusDto);
         List<OrdersResult> ordersResults=new ArrayList<>();
         CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail(specialistEmailAndOrderStatusDto.getEmail());

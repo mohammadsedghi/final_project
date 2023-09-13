@@ -29,4 +29,5 @@ public interface SpecialistService {
     Optional<Specialist> findByEmailOptional(String email);
     Integer updateSpecialistScore(SpecialistScoreDto specialistScoreDto);
     List<SpecialistResult> searchSpecialist(SpecialistSearchDto specialistDto);
+    boolean isConfirm();
 }

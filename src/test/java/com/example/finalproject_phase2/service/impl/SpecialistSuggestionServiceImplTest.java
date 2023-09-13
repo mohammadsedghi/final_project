@@ -18,6 +18,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,11 +53,8 @@ class SpecialistSuggestionServiceImplTest {
         SuggestionDto validSpecialistSuggestionDto=new SuggestionDto();
         validSpecialistSuggestionDto.setSpecialistEmail("mohammad@gmail.com");
         validSpecialistSuggestionDto.setOrdersId(1l);
-        validSpecialistSuggestionDto.setDay(12);
-        validSpecialistSuggestionDto.setMonth(9);
-        validSpecialistSuggestionDto.setYear(2023);
-        validSpecialistSuggestionDto.setHour(13);
-        validSpecialistSuggestionDto.setMinutes(20);
+        validSpecialistSuggestionDto.setDateOfStartWork(LocalDate.now());
+        validSpecialistSuggestionDto.setTimeOfStartWork(LocalTime.now());
         validSpecialistSuggestionDto.setProposedPrice(140d);
         validSpecialistSuggestionDto.setSubDutyName("CD");
         validSpecialistSuggestionDto.setWorkTimePerHour(10);
@@ -66,11 +65,8 @@ class SpecialistSuggestionServiceImplTest {
         SuggestionDto validSpecialistSuggestionDto=new SuggestionDto();
         validSpecialistSuggestionDto.setSpecialistEmail("mohammad@gmail.com");
         validSpecialistSuggestionDto.setOrdersId(1l);
-        validSpecialistSuggestionDto.setDay(12);
-        validSpecialistSuggestionDto.setMonth(9);
-        validSpecialistSuggestionDto.setYear(2023);
-        validSpecialistSuggestionDto.setHour(13);
-        validSpecialistSuggestionDto.setMinutes(20);
+        validSpecialistSuggestionDto.setDateOfStartWork(LocalDate.now());
+        validSpecialistSuggestionDto.setTimeOfStartWork(LocalTime.now());
         validSpecialistSuggestionDto.setProposedPrice(140d);
         validSpecialistSuggestionDto.setSubDutyName("CD");
         validSpecialistSuggestionDto.setWorkTimePerHour(10);

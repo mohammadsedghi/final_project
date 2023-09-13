@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 @NoArgsConstructor
 @Data
 public class ProjectResponse {
-    String code;
-    String message;
+   private String code;
+    private String message;
 
     public static ResponseEntity<ProjectResponse> getResponseEntity(ProjectResponse object){
         ProjectResponse projectResponse = object;

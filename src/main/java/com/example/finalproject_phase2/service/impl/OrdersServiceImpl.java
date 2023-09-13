@@ -2,7 +2,6 @@ package com.example.finalproject_phase2.service.impl;
 
 import com.example.finalproject_phase2.custom_exception.CustomDuplicateInfoException;
 import com.example.finalproject_phase2.custom_exception.CustomException;
-import com.example.finalproject_phase2.custom_exception.CustomInputOutputException;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.dutyDto.DutyDto;
 import com.example.finalproject_phase2.dto.ordersDto.*;
@@ -25,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 
 import static org.springframework.data.jpa.domain.Specification.where;
@@ -74,8 +72,6 @@ public class OrdersServiceImpl implements OrdersService {
                 if (!checkValidation.isValid(submitOrderDto.getAddress())) {
                     throw new CustomException("input address for orders is invalid");
                 }
-
-                LocalDate date = LocalDate.of(submitOrderDto.getYear(), submitOrderDto.getMonth(), submitOrderDto.getDay());
                 System.out.println(subDuty.getId());
                 Orders orders = Orders.builder()
                         .specialist(specialist)
@@ -84,8 +80,8 @@ public class OrdersServiceImpl implements OrdersService {
                         .address(addressService.
                                 createAddress(addressMapper.addressToAddressDto(submitOrderDto.getAddress())))
                         .description(submitOrderDto.getDescription())
-                        .DateOfWork(LocalDate.now())
-                        .timeOfWork(LocalTime.now())
+                        .DateOfWork(submitOrderDto.getDateOfWork())
+                        .timeOfWork(submitOrderDto.getTimeOfWork())
                         .proposedPrice(Double.parseDouble(submitOrderDto.getProposedPrice()))
                         .orderStatus(OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION)
                         .build();
@@ -94,7 +90,7 @@ public class OrdersServiceImpl implements OrdersService {
             }
 
         } catch (CustomException ce) {
-            return new OrdersDto();
+            throw new CustomException(ce.getMessage());
         }
         return new OrdersDto();
     }
