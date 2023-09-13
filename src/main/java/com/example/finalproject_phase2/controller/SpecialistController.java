@@ -191,8 +191,8 @@ public class SpecialistController {
         Specialist specialist = specialistService.findByEmail(customerDtoEmail.getEmail());
         return new ResponseEntity<>(walletService.ShowBalance(specialist.getWallet()),HttpStatus.ACCEPTED);
     }
-    @PostMapping("/findOrdersInStatusWaitingForSpecialistSuggestion")
-    public ResponseEntity<List<OrdersResult>> findOrdersInStatusWaitingForSpecialistSuggestion(@RequestBody  SpecialistEmailAndOrderStatusDto specialistEmailAndOrderStatusDto ) {
+    @PostMapping("/findOrdersInStatusWaitingForSpecialistSuggestionForSpecialist")
+    public ResponseEntity<List<OrdersResult>> findOrdersInStatus(@RequestBody  SpecialistEmailAndOrderStatusDto specialistEmailAndOrderStatusDto ) {
         dtoValidation.isValid(specialistEmailAndOrderStatusDto);
         List<OrdersResult> ordersResults=new ArrayList<>();
         CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail(specialistEmailAndOrderStatusDto.getEmail());

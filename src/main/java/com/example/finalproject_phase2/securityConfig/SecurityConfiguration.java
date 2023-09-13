@@ -75,6 +75,7 @@ public class SecurityConfiguration {
                            .requestMatchers("api/specialist/changePassword").hasAuthority("SPECIALIST")
                            .requestMatchers("api/specialist/changeStatusOrderToWaitingForSpecialistToWorkplace").hasAuthority("SPECIALIST")
                            .requestMatchers("api/specialist/wallet/ShowBalance").hasAuthority("SPECIALIST")
+                           .requestMatchers("api/specialist/findOrdersInStatusWaitingForSpecialistSuggestionForSpecialist").hasAuthority("SPECIALIST")
 
 
                            .requestMatchers("api/admin/duty/submit").hasAuthority("ADMIN")
