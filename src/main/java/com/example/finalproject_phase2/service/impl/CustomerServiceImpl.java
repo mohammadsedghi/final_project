@@ -60,6 +60,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     public AuthenticationResponse register(Customer customer) {
         EmailRequest emailRequest = new EmailRequest();
+        if (findByEmail(customer.getEmail()).isPresent()){throw new CustomException("this customer is exist");}
         customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         customer.setRegisterDate(LocalDate.now());
         customer.setRegisterTime(LocalTime.now());
