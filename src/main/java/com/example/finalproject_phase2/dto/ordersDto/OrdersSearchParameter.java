@@ -8,16 +8,14 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Builder
-public class OrdersAdvanceSearchParameter {
+public class OrdersSearchParameter {
     String dutyName;
     String subDutyName;
     String email;
     LocalDate dateOfWorkStart;
     LocalDate dateOfWorkEnd;
-    OrderStatus orderStatus;
-
+   String orderStatus;
 }

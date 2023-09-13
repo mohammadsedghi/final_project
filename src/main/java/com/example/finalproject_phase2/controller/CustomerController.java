@@ -45,7 +45,7 @@ import java.io.OutputStream;
 import java.time.LocalTime;
 import java.util.*;
 
-//@RestController
+
 @Controller
 @RequestMapping("/api/customer")
 public class CustomerController {
@@ -153,30 +153,26 @@ private Double proposedPrice;
         return new ResponseEntity<>(ordersDto, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersInStatusWaitingForSpecialistSuggestion")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusWaitingForSpecialistSuggestion(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
+    public ResponseEntity<List<OrdersResult>> findOrdersInStatusWaitingForSpecialistSuggestion(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
         dtoValidation.isValid(customerDtoEmail);
+        List<OrdersResult> ordersResults=new ArrayList<>();
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusWaitingForSpecialistSuggestion(customerDtoEmail);
-        Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
-       if (ordersDtoCollection.size()==0){throw new CustomException("not order with this condition exist");
-       }else return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
+        return ordersService.getListResponseEntity(ordersResults, ordersCollection);
     }
+
     @PostMapping("/findOrdersInStatusWaitingForSpecialistSelection")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusWaitingForSpecialistSelection(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
+    public ResponseEntity<List<OrdersResult>> findOrdersInStatusWaitingForSpecialistSelection(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
         dtoValidation.isValid(customerDtoEmail);
+        List<OrdersResult> ordersResults=new ArrayList<>();
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusWaitingForSpecialistSelection(customerDtoEmail);
-        Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
-        if (ordersDtoCollection.size()==0){
-            throw new CustomException("not order with this condition exist");
-        }else return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
+        return ordersService.getListResponseEntity(ordersResults, ordersCollection);
     }
     @PostMapping("/findOrdersInStatusWaitingForSpecialistToWorkplace")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusWaitingForSpecialistToWorkplace(@RequestBody  CustomerDtoEmail customerDtoEmail) {
+    public ResponseEntity<List<OrdersResult>> findOrdersInStatusWaitingForSpecialistToWorkplace(@RequestBody  CustomerDtoEmail customerDtoEmail) {
         dtoValidation.isValid(customerDtoEmail);
+        List<OrdersResult> ordersResults=new ArrayList<>();
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusWaitingForSpecialistToWorkplace(customerDtoEmail);
-        Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
-        if (ordersDtoCollection.size()==0){
-            throw new CustomException("not order with this condition exist");
-        }return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
+        return ordersService.getListResponseEntity(ordersResults, ordersCollection);
     }
     @PostMapping("/changeStatusOrderToStarted")
     public ResponseEntity<Boolean> changeStatusOrderToStarted(@RequestBody  StatusOrderSpecialistSuggestionDto statusOrderSpecialistSuggestionDto  ) {
@@ -191,31 +187,25 @@ private Double proposedPrice;
         return new ResponseEntity<>(true, HttpStatus.ACCEPTED);
     }
     @PostMapping("/findOrdersInStatusStarted")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusStarted(@RequestBody  CustomerDtoEmail customerDtoEmail) {
+    public ResponseEntity<List<OrdersResult>> findOrdersInStatusStarted(@RequestBody  CustomerDtoEmail customerDtoEmail) {
         dtoValidation.isValid(customerDtoEmail);
+        List<OrdersResult> ordersResults=new ArrayList<>();
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusStarted(customerDtoEmail);
-        Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
-        if (ordersDtoCollection.size()==0){
-            throw new CustomException("not order with this condition exist");
-        }return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
+        return ordersService.getListResponseEntity(ordersResults, ordersCollection);
     }
     @PostMapping("/findOrdersInStatusDone")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusDone(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
+    public ResponseEntity<List<OrdersResult>> findOrdersInStatusDone(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
         dtoValidation.isValid(customerDtoEmail);
+        List<OrdersResult> ordersResults=new ArrayList<>();
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusDone(customerDtoEmail);
-        Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
-        if (ordersDtoCollection.size()==0){
-            throw new CustomException("not order with this condition exist");
-        } else return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
+        return ordersService.getListResponseEntity(ordersResults, ordersCollection);
     }
     @PostMapping("/findOrdersInStatusPaid")
-    public ResponseEntity<Collection<OrdersDto>> findOrdersInStatusPaid(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
+    public ResponseEntity<List<OrdersResult>> findOrdersInStatusPaid(@RequestBody  CustomerDtoEmail customerDtoEmail ) {
         dtoValidation.isValid(customerDtoEmail);
+        List<OrdersResult> ordersResults=new ArrayList<>();
         Collection<Orders> ordersCollection = ordersService.findOrdersInStatusPaid(customerDtoEmail);
-        Collection<OrdersDto> ordersDtoCollection = ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection);
-        if (ordersDtoCollection.size()==0){
-            throw new CustomException("not order with this condition exist");
-        }else return new ResponseEntity<>(ordersDtoCollection, HttpStatus.ACCEPTED);
+        return ordersService.getListResponseEntity(ordersResults, ordersCollection);
     }
     @PostMapping("/submitCustomerComments")
     public ResponseEntity<Boolean> submitCustomerComments(@RequestBody  CustomerCommentsDto customerCommentsDto) {
@@ -337,5 +327,6 @@ public String selectSpecialistSuggestion(@RequestBody SpecialistSuggestionIdDto 
         dtoValidation.isValid(customerDtoEmail);
         return new ResponseEntity<>(ordersService.showHistoryOrders(customerDtoEmail),HttpStatus.ACCEPTED);
     }
+
 
   }

@@ -64,7 +64,9 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
                 throw new CustomException("duplicate request for suggest");
             }
             if (!calenderAndValidation.setAndConvertDate(order.get().getDateOfWork(),
-                    suggestionDto.getDay(), suggestionDto.getMonth(), suggestionDto.getYear(), order.get().getTimeOfWork(), suggestionDto.getHour(), suggestionDto.getMinutes())) {
+                    suggestionDto.getDateOfStartWork().getDayOfMonth(), suggestionDto.getDateOfStartWork().getDayOfMonth(), suggestionDto.getDateOfStartWork().getYear(),
+                    order.get().getTimeOfWork(), suggestionDto.getTimeOfStartWork().getHour(),
+                    suggestionDto.getTimeOfStartWork().getMinute())) {
                 throw new CustomException("order time of work is not valid");
             }
             OrdersDtoWithOrdersStatus ordersDtoWithOrdersStatus = new OrdersDtoWithOrdersStatus();
@@ -75,14 +77,15 @@ public class SpecialistSuggestionServiceImpl implements SpecialistSuggestionServ
                     .order(ordersService.updateOrderToNextLevel(ordersDtoWithOrdersStatus))
                     .DateOfSuggestion(LocalDate.now())
                     .TimeOfSuggestion(LocalTime.now())
-                    .TimeOfStartWork(LocalTime.of(suggestionDto.getHour(), suggestionDto.getMinutes(), 0))
-                    .DateOfStartWork(LocalDate.of(suggestionDto.getYear(), suggestionDto.getMonth(), suggestionDto.getDay()))
+                    .TimeOfStartWork(suggestionDto.getTimeOfStartWork())
+                    .DateOfStartWork(suggestionDto.getDateOfStartWork())
                     .durationOfWorkPerHour(suggestionDto.getWorkTimePerHour())
                     .proposedPrice(subDuty.getBasePrice() + suggestionDto.getProposedPrice())
+                    .specialistSelectionOfOrder(SpecialistSelectionOfOrder.UNSELECTED)
                     .build();
             return submitSpecialistSuggestion(specialistSuggestion);
         } catch (CustomException ce) {
-            throw new CustomException("submitSpecialistSuggestion is not occur");
+            throw new CustomException(ce.getMessage());
         }
     }
 

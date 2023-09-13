@@ -2,6 +2,7 @@ package com.example.finalproject_phase2.service.impl;
 
 import com.example.finalproject_phase2.custom_exception.CustomDuplicateInfoException;
 import com.example.finalproject_phase2.custom_exception.CustomException;
+import com.example.finalproject_phase2.custom_exception.CustomInputOutputException;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.dutyDto.DutyDto;
 import com.example.finalproject_phase2.dto.ordersDto.*;
@@ -19,6 +20,8 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -32,7 +35,6 @@ public class OrdersServiceImpl implements OrdersService {
     private final OrdersRepository ordersRepository;
     private final CustomerMapper customerMapper;
     private final SubDutyMapper subDutyMapper;
-    CheckValidation checkValidation = new CheckValidation();
     private final OrdersMapper ordersMapper;
     private final CustomerService customerService;
     private final SpecialistService specialistService;
@@ -74,7 +76,6 @@ public class OrdersServiceImpl implements OrdersService {
                 }
 
                 LocalDate date = LocalDate.of(submitOrderDto.getYear(), submitOrderDto.getMonth(), submitOrderDto.getDay());
-//                   SubDuty subDuty = subDutyMapper.subDutyDtoToSubDuty(subDutyDto);
                 System.out.println(subDuty.getId());
                 Orders orders = Orders.builder()
                         .specialist(specialist)
@@ -84,7 +85,6 @@ public class OrdersServiceImpl implements OrdersService {
                                 createAddress(addressMapper.addressToAddressDto(submitOrderDto.getAddress())))
                         .description(submitOrderDto.getDescription())
                         .DateOfWork(LocalDate.now())
-//                   .timeOfWork(LocalTime.parse(submitOrderDto.getTimeOfWork()))
                         .timeOfWork(LocalTime.now())
                         .proposedPrice(Double.parseDouble(submitOrderDto.getProposedPrice()))
                         .orderStatus(OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION)
@@ -101,8 +101,10 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public Collection<Orders> showOrdersToSpecialist(SubDutyNameDto subDutyNameDtoDto) {
-//        return ordersRepository.showOrdersToSpecialist(subDutyMapper.subDutyDtoToSubDuty(subDutyService.findByName(subDutyNameDtoDto.getName())), OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION, OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
-        return ordersRepository.showOrdersToSpecialist(subDutyService.findByNames(subDutyNameDtoDto.getName()), OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION, OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
+        return ordersRepository.showOrdersToSpecialist(
+                subDutyService.findByNames(subDutyNameDtoDto.getName()),
+                OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION,
+                OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION);
     }
 
     @Override
@@ -198,23 +200,28 @@ public class OrdersServiceImpl implements OrdersService {
 
     public  Specification<Orders> advanceSearchInOrders(
             SubDuty subDuty, String email, LocalDate localDateStart, LocalDate localDateEnd, OrderStatus status) {
-        return (Root<Orders> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.conjunction();
+        try {
+            return (Root<Orders> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+                Predicate predicate = criteriaBuilder.conjunction();
 
-            if (subDuty != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("subDuty"), subDuty));
-            }
-            if (email != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("customer").get("email"), email));
-            }
-            if (localDateStart != null && localDateEnd != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.between(root.get("DateOfWork"), localDateStart, localDateEnd));
-            }
-            if (status != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("orderStatus"), status));
-            }
-            return predicate;
-        };
+                if (subDuty != null) {
+                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("subDuty"), subDuty));
+                }
+                if (email != null) {
+                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("customer").get("email"), email));
+                }
+                if (localDateStart != null && localDateEnd != null) {
+                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.between(root.get("DateOfWork"), localDateStart, localDateEnd));
+                }
+                if (status != null) {
+                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("orderStatus"), status));
+                } else throw new CustomException("each order have value for status and you can not permission inter" +
+                        "nothing value for this");
+                return predicate;
+            };
+        }catch (CustomException ce){
+            throw new CustomException(ce.getMessage());
+        }
     }
     @Override
     public List<OrdersResult> searchInDuty(OrdersAdvanceSearchParameter ordersAdvanceSearchParameter) {
@@ -267,11 +274,13 @@ public class OrdersServiceImpl implements OrdersService {
         return (ordersRepository.findOrdersInStatusWaitingForSpecialistSuggestion(customerDtoEmail.getEmail(),
                 orderStatus));
     }
+    @Override
     public Collection<Orders> findOrdersForSpecialistInStatus(CustomerDtoEmail customerDtoEmail,OrderStatus orderStatus) {
         return (ordersRepository.findOrdersInStatusForSpecialist(customerDtoEmail.getEmail(),
                 orderStatus));
     }
 
+   @Override
     public List<OrderStatus>toListOrdersStatus(){
         return List.of(OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SUGGESTION,
                 OrderStatus.ORDER_WAITING_FOR_SPECIALIST_SELECTION,
@@ -301,33 +310,17 @@ public class OrdersServiceImpl implements OrdersService {
         }
         return orders;
     }
-
+    @Override
+    public ResponseEntity<List<OrdersResult>> getListResponseEntity(List<OrdersResult> ordersResults, Collection<Orders> ordersCollection) {
+        ordersMapper.collectionOrdersToCollectionOrdersDto(ordersCollection).forEach(
+                ordersDto -> ordersResults.add(
+                        new OrdersResult(
+                                ordersDto.getSpecialist().getLastName(),
+                                ordersDto.getCustomer().getLastName(),
+                                ordersDto.getDateOfWork(),
+                                ordersDto.getProposedPrice())));
+        if (ordersResults.size()==0){
+            throw new CustomException("not order with this condition exist");
+        }else return new ResponseEntity<>(ordersResults, HttpStatus.ACCEPTED);
+    }
 }
-//    @Override
-//    public List<OrdersResult> searchInDuty(String dutyName ) {
-//        DutyDto dutyDto = dutyService.findByName(dutyName);
-//        List<OrdersResult> ordersList=new ArrayList<>();
-//        Duty duty = dutyMapper.dutyDtoToDuty(dutyDto);
-//        for (SubDuty subDuty:duty.getSubDuties()
-//        ) {
-//            ordersRepository.findAll(where(hasOrdersWithThisDuty(subDuty)))
-//    .forEach(orders -> ordersList.add(new OrdersResult(
-//            orders.getSpecialist().getLastName(),
-//            orders.getCustomer().getLastName()
-//            ,orders.getDateOfWork()
-//            ,orders.getProposedPrice())));
-//        }
-//        return ordersList;
-//    }
-//}
- //  ordersRepository.findAll(where(ordersWithSubDutyAndCustomerEmail(subDuty,
-//                                ordersAdvanceSearchParameter.getEmail(),
-//                                ordersAdvanceSearchParameter.getDateOfWorkStart(),
-//                                ordersAdvanceSearchParameter.getDateOfWorkEnd(),
-//                                ordersAdvanceSearchParameter.getOrderStatus()
-//                        )))
-//                        .forEach(orders -> ordersList.add(new OrdersResult(
-//                                orders.getSpecialist().getLastName(),
-//                                orders.getCustomer().getLastName()
-//                                , orders.getDateOfWork()
-//                                , orders.getProposedPrice())));

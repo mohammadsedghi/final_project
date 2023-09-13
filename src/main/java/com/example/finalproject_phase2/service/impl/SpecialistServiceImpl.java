@@ -66,7 +66,6 @@ private String token;
         this.mailService = mailService;
         this.dutyMapper = dutyMapper;
         this.dutyService = dutyService;
-
         this.subDutyService = subDutyService;
         this.subDutyMapper = subDutyMapper;
     }
@@ -74,10 +73,8 @@ private String token;
     public AuthenticationResponse register(MultipartFile file,SpecialistRegisterDto specialistRegisterDto){
         EmailRequest emailRequest =new EmailRequest();
         Duty duty = dutyService.findByNames(specialistRegisterDto.getDutyName());
-        //duty.setId(1l);
         SubDuty subDuty = subDutyService.findByNames(specialistRegisterDto.getSubDutyName());
         Set<SubDuty> subDuties=new HashSet<>();
-       // subDuty.setId(2l);
         subDuties.add(subDuty);
         Specialist specialist=Specialist.builder().
         firstName(specialistRegisterDto.getFirstName())
@@ -89,7 +86,6 @@ private String token;
                                        .duty(duty).
                 build();
         try{
-            //if (!checkValidation.isValid(specialistDto)) throw new CustomException("input  is invalid  ");
             specialistRepository.findByEmail(specialistRegisterDto.getEmail()).ifPresentOrElse(
                 tempCustomer -> {
                     throw new CustomException("Specialist with this email and password is exist ");
@@ -167,8 +163,6 @@ private String token;
     }
     @Override
     public Boolean addSpecialistToSubDuty(SpecialistSubDutyDto specialistSubDutyDto) {
-
-        Set<SubDuty> setOfSubDuty = specialistSubDutyDto.getSpecialist().getSubDuties();
         specialistSubDutyDto.getSpecialist().getSubDuties().forEach(element -> {
             if (!specialistSubDutyDto.getSpecialist().getSubDuties().contains(specialistSubDutyDto.getSubDuty())) {
                 specialistSubDutyDto.getSpecialist().getSubDuties().add(specialistSubDutyDto.getSubDuty());
@@ -196,8 +190,8 @@ private String token;
     public String convertImageToImageDataFile(MultipartFile file ,Specialist specialist) throws CustomInputOutputException {
         try {
             byte[] fileContent = IOUtils.toByteArray(file.getInputStream());
-//            if (!checkValidation.isJpgImage(fileContent))
-//                throw new CustomInputOutputException("image file format is not valid");
+            if (!checkValidation.isJpgImage(fileContent))
+                throw new CustomInputOutputException("image file format is not valid");
             if (!checkValidation.isImageHaveValidSize(fileContent)) {
                 throw new CustomInputOutputException("image size must be lower than 300KB");
             }
@@ -258,7 +252,6 @@ private String token;
     @Override
     public Integer updateSpecialistScore(SpecialistScoreDto specialistScoreDto) {
         specialistScoreDto.getSpecialist().setScore(specialistScoreDto.getScore());
-       // System.out.println("fffffffffff"+specialistScoreDto.getSpecialist().getScore());
         if (specialistScoreDto.getSpecialist().getScore()<0){
         specialistScoreDto.getSpecialist().setStatus(SpecialistRegisterStatus.WAITING_FOR_CONFIRM);
         }

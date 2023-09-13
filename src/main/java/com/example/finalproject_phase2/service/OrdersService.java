@@ -1,5 +1,6 @@
 package com.example.finalproject_phase2.service;
 
+import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.dto.ProjectResponse;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDto;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
@@ -11,6 +12,8 @@ import com.example.finalproject_phase2.entity.Customer;
 import com.example.finalproject_phase2.entity.Orders;
 import com.example.finalproject_phase2.entity.SubDuty;
 import com.example.finalproject_phase2.entity.enumeration.OrderStatus;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,5 +35,10 @@ public interface OrdersService {
     List<OrdersResult> searchInDuty(OrdersAdvanceSearchParameter ordersAdvanceSearchParameter );
     Long numberOfOrders(String email ,String userType );
     Map<OrderStatus,List<OrdersResult>> showHistoryOrders(CustomerDtoEmail customerDtoEmail);
+    List<OrderStatus>toListOrdersStatus();
+     ResponseEntity<List<OrdersResult>> getListResponseEntity(List<OrdersResult> ordersResults, Collection<Orders> ordersCollection);
+     Collection<Orders> findOrdersForSpecialistInStatus(CustomerDtoEmail customerDtoEmail,OrderStatus orderStatus) ;
+
+
     Optional<Orders> findById(Long id);
 }

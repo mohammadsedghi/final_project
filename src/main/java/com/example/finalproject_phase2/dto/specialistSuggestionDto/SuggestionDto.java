@@ -3,6 +3,9 @@ package com.example.finalproject_phase2.dto.specialistSuggestionDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -18,21 +21,16 @@ public class SuggestionDto {
 
     Integer workTimePerHour;
     @NotNull(message = "hour must be have value")
-
-    int hour;
-    @NotNull(message = "minutes must be have value")
-
-    int minutes;
-    @NotNull(message = "day must be have value")
-
-    int day;
-    @NotNull(message = "month must be have value")
-
-    int month;
-    @NotNull(message = "year must be have value")
-
-    int year;
-    @NotNull(message = "subDutyName must be have value")
+    LocalTime timeOfStartWork;
+    LocalDate dateOfStartWork;
+//    int day;
+//    @NotNull(message = "month must be have value")
+//
+//    int month;
+//    @NotNull(message = "year must be have value")
+//
+//    int year;
+//    @NotNull(message = "subDutyName must be have value")
 
     String subDutyName;
     @NotNull(message = "proposedPrice must be have value")

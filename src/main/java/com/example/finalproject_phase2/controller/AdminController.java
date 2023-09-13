@@ -1,10 +1,12 @@
 package com.example.finalproject_phase2.controller;
 
+import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.customerDto.CustomerResult;
 import com.example.finalproject_phase2.dto.customerDto.CustomerSearchDto;
 import com.example.finalproject_phase2.dto.dutyDto.DutyNameDto;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersAdvanceSearchParameter;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersResult;
+import com.example.finalproject_phase2.dto.ordersDto.OrdersSearchParameter;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistEmailDto;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistResult;
 import com.example.finalproject_phase2.dto.specialistDto.SpecialistSearchDto;
@@ -12,6 +14,7 @@ import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDto;
 import com.example.finalproject_phase2.dto.subDutyDto.EditSubDutyDtoDescription;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyDto;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
+import com.example.finalproject_phase2.entity.enumeration.OrderStatus;
 import com.example.finalproject_phase2.securityConfig.AuthenticationResponse;
 import com.example.finalproject_phase2.custom_exception.CustomException;
 import com.example.finalproject_phase2.dto.adminDto.AdminDto;
@@ -147,8 +150,6 @@ public class AdminController {
         if (specialistSearchDto.getRegisterTime() == null) specialistSearchDto.setRegisterTime(LocalTime.of(23,59));
         System.out.println(specialistSearchDto.getRegisterTime());
         List<SpecialistResult> specialists = specialistService.searchSpecialist(specialistSearchDto);
-      //  CheckValidation.memberTypespecialist = specialistService.findByEmail(specialists.get(0).getEmail());
-      //  System.out.println(CheckValidation.memberTypespecialist.getEmail());
         Map<SpecialistResult,Long> map=new HashMap<>();
         for (SpecialistResult specialistResult:specialists
         ) {
@@ -179,28 +180,56 @@ public class AdminController {
     }
 
     @PostMapping("/advanceSearch")
-    public ResponseEntity<List<OrdersResult>> searchOrders(@RequestBody OrdersAdvanceSearchParameter ordersAdvanceSearchParameter) {
-        List<OrdersResult> ordersResults = ordersService.searchInDuty(ordersAdvanceSearchParameter);
+    public ResponseEntity<List<OrdersResult>> searchOrders(@RequestBody OrdersSearchParameter ordersSearchParameter) {
+        List<OrdersResult> ordersResults=new ArrayList<>();
+        OrdersAdvanceSearchParameter ordersAdvanceSearchParameter=OrdersAdvanceSearchParameter.builder()
+                .dutyName(ordersSearchParameter.getDutyName())
+                .subDutyName(ordersSearchParameter.getSubDutyName())
+                .email(ordersSearchParameter.getEmail())
+                .dateOfWorkStart(ordersSearchParameter.getDateOfWorkStart())
+                .dateOfWorkEnd(ordersSearchParameter.getDateOfWorkEnd())
+                .build();
+        if (ordersSearchParameter.getOrderStatus().isEmpty()){
+        for (OrderStatus status:ordersService.toListOrdersStatus()
+             ) {
+            ordersAdvanceSearchParameter.setOrderStatus(status);
+            ordersResults.addAll(ordersService.searchInDuty(ordersAdvanceSearchParameter)) ;
+        }
+        }else {
+            ordersAdvanceSearchParameter.setOrderStatus(OrderStatus.valueOf(ordersSearchParameter.getOrderStatus()));
+            ordersResults = ordersService.searchInDuty(ordersAdvanceSearchParameter);
+        }
         if (ordersResults.size() == 0) {
             throw new CustomException("with this parameter not found any things");
         } else {
-            return new ResponseEntity<>(ordersService.searchInDuty(ordersAdvanceSearchParameter), HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(ordersResults, HttpStatus.ACCEPTED);
         }
     }
+    @PostMapping("/numberOfOrders")
+    public ResponseEntity<Long> numberOfOrders(@RequestBody CustomerDtoEmail customerDtoEmail) {
+        dtoValidation.isValid(customerDtoEmail);
+        Long numberOfOrders = ordersService.numberOfOrders(customerDtoEmail.getEmail(),"customer");
+        try {
+            if (numberOfOrders == 0) {
+                throw new CustomException("with this email not found any orders");
+            } else {
+                return new ResponseEntity<>(numberOfOrders, HttpStatus.ACCEPTED);
+            }
+        } catch (CustomException e) {
+            throw new CustomException("with this email not found any member");
+        }
+    }
+    @PostMapping("/searchCustomerAnotherWay")
+    public ResponseEntity<List<CustomerResult>> searchCustomerAnotherWay(@RequestBody CustomerSearchDto customerSearchDto) {
+        if (customerSearchDto.getRegisterTime()!=null){
+            customerSearchDto.setRegisterTime(
+                    LocalTime.of(customerSearchDto.getRegisterTime().getHour(),
+                            customerSearchDto.getRegisterTime().getMinute(),
+                            customerSearchDto.getRegisterTime().getSecond()+1));
+        }
+        if (customerSearchDto.getRegisterTime() == null) customerSearchDto.setRegisterTime(LocalTime.of(23,59));
 
-
-//    @PostMapping("/numberOfOrders")
-//    public ResponseEntity<Long> numberOfOrders(@RequestBody CustomerDtoEmail customerDtoEmail) {
-//        dtoValidation.isValid(customerDtoEmail);
-//        Long numberOfOrders = ordersService.numberOfOrders(customerDtoEmail.getEmail());
-//        try {
-//            if (numberOfOrders == 0) {
-//                throw new CustomException("with this email not found any orders");
-//            } else {
-//                return new ResponseEntity<>(numberOfOrders, HttpStatus.ACCEPTED);
-//            }
-//        } catch (CustomException e) {
-//            throw new CustomException("with this email not found any member");
-//        }
-//    }
+        List<CustomerResult> customers = customerService.searchCustomer(customerSearchDto);
+        return new ResponseEntity<>(customers, HttpStatus.ACCEPTED);
+    }
 }

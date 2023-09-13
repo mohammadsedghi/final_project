@@ -5,6 +5,7 @@ import com.example.finalproject_phase2.custom_exception.CustomInputOutputExcepti
 import com.example.finalproject_phase2.custom_exception.CustomNoResultException;
 import com.example.finalproject_phase2.dto.customerDto.CustomerDtoEmail;
 import com.example.finalproject_phase2.dto.ordersDto.OrdersDto;
+import com.example.finalproject_phase2.dto.ordersDto.OrdersResult;
 import com.example.finalproject_phase2.dto.specialistDto.*;
 import com.example.finalproject_phase2.dto.specialistSuggestionDto.*;
 import com.example.finalproject_phase2.dto.subDutyDto.SubDutyNameDto;
@@ -28,10 +29,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/api/specialist")
@@ -67,23 +65,11 @@ public class SpecialistController {
             @RequestParam("nationalId") String nationalId,
             @RequestParam("email") String email,
             @RequestParam("password") String password)
-
           {
         System.out.println(file.getSize());
         SpecialistRegisterDto specialistRegisterDto=new SpecialistRegisterDto(firstName,lastName,nationalId,email,password,dutyName,subDutyName);
         return  ResponseEntity.ok(specialistService.register(file,specialistRegisterDto));
     }
-
-//    @PostMapping(value = "/register")
-//    public ResponseEntity<AuthenticationResponse> register(
-//            @RequestParam("file") MultipartFile file,
-//            @RequestParam("a") Integer a,
-//            @RequestParam("specialistDto")@Valid SpecialistDto specialistDto){
-//        System.out.println(a);
-//        System.out.println(specialistDto.getLastName());
-//        System.out.println(file.getSize());
-//        return  ResponseEntity.ok(specialistService.register(file,specialistDto));
-//    }
     @PostMapping("/authentication")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody SpecialistLoginDto specialistLoginDto
             , @RequestParam String userType){
@@ -205,7 +191,14 @@ public class SpecialistController {
         Specialist specialist = specialistService.findByEmail(customerDtoEmail.getEmail());
         return new ResponseEntity<>(walletService.ShowBalance(specialist.getWallet()),HttpStatus.ACCEPTED);
     }
-
+    @PostMapping("/findOrdersInStatusWaitingForSpecialistSuggestion")
+    public ResponseEntity<List<OrdersResult>> findOrdersInStatusWaitingForSpecialistSuggestion(@RequestBody  SpecialistEmailAndOrderStatusDto specialistEmailAndOrderStatusDto ) {
+        dtoValidation.isValid(specialistEmailAndOrderStatusDto);
+        List<OrdersResult> ordersResults=new ArrayList<>();
+        CustomerDtoEmail customerDtoEmail=new CustomerDtoEmail(specialistEmailAndOrderStatusDto.getEmail());
+        Collection<Orders> ordersCollection = ordersService.findOrdersForSpecialistInStatus(customerDtoEmail,specialistEmailAndOrderStatusDto.getOrderStatus());
+        return ordersService.getListResponseEntity(ordersResults, ordersCollection);
+    }
 
 
 }

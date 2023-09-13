@@ -16,7 +16,7 @@ import java.util.Set;
 public class DutyServiceImpl implements DutyService {
     private final DutyRepository dutyRepository;
     private final DutyMapper dutyMapper;
-    CheckValidation checkValidation = new CheckValidation();
+
 
     @Autowired
     public DutyServiceImpl(DutyRepository dutyRepository, DutyMapper dutyMapper) {
